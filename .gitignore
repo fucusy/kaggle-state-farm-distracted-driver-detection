@@ -1,2 +1,9 @@
-#ignore editor auto-generated files
+# ignore editor auto-generated files
 .idea
+
+
+# ignore test folder which used for exercise
+test
+
+# ingore the config file
+config.py

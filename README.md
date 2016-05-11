@@ -9,10 +9,10 @@ A project built for kaggle competition [distracted drivers detection](https://ww
 * python library:
     in the requirements.md
     to install pip packages use : `pip3.5 install -r pip_packages.txt`
-    
+* Linux or unix System, may be windows
     
 ## how to run
-
+1. move `config.tmpl.py` to `config.py`, you can use *unix command line `mv config.tmpl.py config.py`, and update the variable in this file 
 
 
 
