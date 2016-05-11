@@ -1,21 +1,27 @@
-# kaggle_distractedDrivers
-A project built for kaggle competition 'distracted drivers detection'.
+# kaggle Distracted Drivers
+A project built for kaggle competition [distracted drivers detection](https://www.kaggle.com/c/state-farm-distracted-driver-detection).
 
-### trainModel.py
-The wrapper of training models.
+# 环境配置
 
-### trainCNN_KERAS.py
-The file defining functions of 1) inferring network architecture by using the layers in KERAS toolbox, 2) defining optimizer and training settings.
+## environment
 
-### testModel.py
-The wrapper of testing models.
+* python 3.5
+* python library:
+    in the requirements.md
+    to install pip packages use : `pip3.5 install -r pip_packages.txt`
+    
+    
+## how to run
 
 
-### testCNN_KERAS.py
-The file defining functions of testing settings.
 
-### DataReader_KERAS.py
-The file defining functions of reading data from the disc and return training or testing data for KERAS toolbox.
 
-### DataAugmentation.py
-The file defining functions for data augmentation, including 'mirror', 'rotate', 'resize' and so on.
+#Idea
+
+
+
+#实验结果记录
+
+| submit date | name | offline |          | online  |   compare  |feature                  | model                   | other trick                                   | comments |
+| ---------- |-------- | --------|---------|---------|------------|-------------------------|-------------------------|-----------------------------------------------|----------|
+| 2016-05-11  | chenqiang | 0.47447 |  0       | 0.47571 |    0       |  query_in_title etc     | RandomForestRegressor   | remove stop words                             | example |
