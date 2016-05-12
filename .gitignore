@@ -7,3 +7,6 @@ test
 
 # ingore the config file
 config.py
+
+# ignore python cache files
+__pycache__
