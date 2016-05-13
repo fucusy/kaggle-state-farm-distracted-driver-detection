@@ -1,4 +1,5 @@
 __author__ = 'fucus'
+import model.model as model
 
 class Project:
 
@@ -8,10 +9,14 @@ class Project:
     # required, this path contain imgs to be tested
     test_img_folder_path = "/Users/fucus/Documents/buaa/projects/State_Farm_Distracted_Driver_Detection/data/imgs/test"
 
-
     # required, your project's absolute path, in other way, it's the absolute path for this file
     project_path = "/Users/fucus/Documents/buaa/projects/State_Farm_Distracted_Driver_Detection/code/kaggle_distractedDrivers"
 
-
     # not required, a img path for you exercise program
     test_img_example_path = "/Users/fucus/Documents/buaa/projects/State_Farm_Distracted_Driver_Detection/data/imgs/train/c0/img_27327.jpg"
+
+    # required, predict model
+    predict_model = model.RandomForestClassification()
+
+    # required, result output path
+    result_output_path = "./result/"
