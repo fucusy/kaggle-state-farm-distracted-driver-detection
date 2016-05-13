@@ -24,4 +24,4 @@ A project built for kaggle competition [distracted drivers detection](https://ww
 
 | submit date | name | offline |          | online  |   compare  |feature                  | model                   | other trick                                   | comments |
 | ---------- |-------- | --------|---------|---------|------------|-------------------------|-------------------------|-----------------------------------------------|----------|
-| 2016-05-11  | chenqiang | 0.47447 |  0       | 0.47571 |    0       |  query_in_title etc     | RandomForestRegressor   | remove stop words                             | example |
+| 2016-05-13  | liu zheng | 4.47070 |  0       | 0 |    0       |   6 conv layers cnn  | cnn   | mirror,rotate,resize 64x64                            | what a shame.... |
