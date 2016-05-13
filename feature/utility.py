@@ -3,6 +3,7 @@ __author__ = 'fucus'
 import os
 import skimage.io
 import logging
+from feature.hog import get_hog
 
 def load_train_data(img_data_path):
     driver_type_num_check = {"c0": 2489, "c1": 2267, "c2": 2317, "c3": 2346, "c4": 2326
@@ -53,4 +54,9 @@ def load_test_data(img_data_path):
 
 
 def extract_feature(x_img):
-    return x_img
+    features = []
+    for img in x_img:
+        feature = []
+        feature += get_hog(img)
+        features.append(feature)
+    return features

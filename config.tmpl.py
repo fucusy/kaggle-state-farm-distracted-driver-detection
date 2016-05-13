@@ -1,6 +1,7 @@
 __author__ = 'fucus'
 import model.model as model
 
+
 class Project:
 
     # required, this path contain the train image in sub-folder, the there are ten sub-folders, c0, c1, c2, c3 .... c9

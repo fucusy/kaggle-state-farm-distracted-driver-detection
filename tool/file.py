@@ -1,6 +1,6 @@
 __author__ = 'fucus'
 
-import config.Project as p
+from config import Project as p
 import pandas as pd
 import logging
 import time
