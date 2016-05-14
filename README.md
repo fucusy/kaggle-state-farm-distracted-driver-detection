@@ -13,8 +13,12 @@ A project built for kaggle competition [distracted drivers detection](https://ww
     
 ## how to run
 1. move `config.tmpl.py` to `config.py`, you can use *unix command line `mv config.tmpl.py config.py`, and update the variable in this file 
+2. run the `main.py` by `python3.5 main.py`
 
+## result
 
+1. in the result folder, you can see some file end with `.csv`
+2. the cache folder, you can see cache file
 
 #Idea
 
