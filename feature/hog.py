@@ -20,7 +20,9 @@ def get_hog(img):
     :return: list of feature
     """
     hog_image_1d, hog_image_2d = get_1d_2d_hog(img)
-    return list(hog_image_1d)
+    hog = list(hog_image_1d)
+    res = [int(x * 100) for x in hog]
+    return res
 
 if __name__ == '__main__':
     img = skimage.io.imread(p.test_img_example_path)

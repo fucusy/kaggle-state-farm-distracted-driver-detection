@@ -10,7 +10,10 @@ def generate_result_file(name, y_result):
     df = pd.DataFrame({"img": name})
 
     # if y_result is a list of type
-    y_result_matrix = [[]] * 10
+    y_result_matrix = []
+    for j in range(10):
+        y_result_matrix.append([])
+
     driver_type_list = ["c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9"]
 
     for i in range(len(y_result)):
@@ -18,7 +21,6 @@ def generate_result_file(name, y_result):
         if driver_type not in driver_type_list:
             logging.warning("the predicted driver type:%s of %s not in driver_type_list:%s, it's incorrect, force set"
                             " it to c0" % (driver_type, name[i], ",".join(driver_type_list)))
-        else:
             driver_type = "c0"
         driver_index = driver_type_list.index(driver_type)
 
@@ -41,4 +43,6 @@ def generate_result_file(name, y_result):
     if not os.path.exists(final_path):
         os.makedirs(final_path)
 
-    df.to_csv("%s/%s" % (final_path, file_name))
+
+
+    df.to_csv("%s/%s" % (final_path, file_name), index = False)

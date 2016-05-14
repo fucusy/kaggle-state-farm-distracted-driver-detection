@@ -5,11 +5,14 @@ import logging
 import sys
 import datetime
 from config import Project
-from feature.utility import load_train_data
-from feature.utility import load_test_data
-from feature.utility import extract_feature
+from feature.utility import load_train_feature
+from feature.utility import load_test_feature
 from tool.file import generate_result_file
+from feature.utility import load_cache
+from feature.utility import save_cache
 
+
+hog_feature_cache = {}
 
 if __name__ == '__main__':
     LEVELS = {'debug': logging.DEBUG,
@@ -24,38 +27,40 @@ if __name__ == '__main__':
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 
+    train_num = 10000
+    test_num = 10000
+
     start_time = datetime.datetime.now()
     logging.info('start program---------------------')
+    logging.info("loading feature cache now")
+    hog_feature_cache = load_cache()
+    logging.info("load feature cache end")
 
-    logging.info("loading train data now")
-    train_x_dic, train_y = load_train_data(Project.train_img_folder_path)
-    logging.info("loading train data end")
-
-    #
-    # logging.info("loading test data now")
-    # test_x_dic = load_test_data(Project.test_img_folder_path)
-    # logging.info("loading test data end")
-
-    logging.info("extract train data feature now")
-    train_x_feature = extract_feature(train_x_dic['img'])
+    logging.info("load train data feature now")
+    train_img_relevant_paths, train_x_feature, train_y = load_train_feature(Project.train_img_folder_path, hog_feature_cache, train_num)
     logging.info("extract train data feature done")
-
-    #
-    # logging.info("extract train test feature now")
-    # test_x_feature = extract_feature(test_x_dic['img'])
-    # logging.info("extract train test feature done")
 
 
     logging.info("start to train the model")
     Project.predict_model.fit(x_train=train_x_feature, y_train=train_y)
     logging.info("train the model done")
 
+
+    logging.info("load test feature now")
+    test_img_names, test_x_feature = load_test_feature(Project.test_img_folder_path, hog_feature_cache, test_num)
+    logging.info("load test feature done")
+
+
+    logging.info("saving feature cache now")
+    save_cache(hog_feature_cache)
+    logging.info("save feature cache end")
+
     logging.info("start predict test data")
     predict_result = Project.predict_model.predict(test_x_feature)
     logging.info("predict test data done")
 
     logging.info("start to generate the final file used to submit")
-    generate_result_file(test_x_dic['name'], predict_result)
+    generate_result_file(test_img_names[:len(predict_result)] , predict_result)
     logging.info("generated the final file used to submit")
 
     end_time = datetime.datetime.now()

@@ -1,6 +1,11 @@
 # ignore editor auto-generated files
 .idea
 
+# ignore mac os rubissh folder
+.DS_Store
+
+# ignore program cache folder
+cache
 
 # ignore test folder which used for exercise
 test
