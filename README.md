@@ -26,6 +26,7 @@ A project built for kaggle competition [distracted drivers detection](https://ww
 
 #实验结果记录
 
-| submit date | name | offline |          | online  |   compare  |feature                  | model                   | other trick                                   | comments |
-| ---------- |-------- | --------|---------|---------|------------|-------------------------|-------------------------|-----------------------------------------------|----------|
-| 2016-05-13  | liu zheng | 4.47070 |  0       | 0 |    0       |   6 conv layers cnn  | cnn   | mirror,rotate,resize 64x64                            | what a shame.... |
+| submit date | name      | offlogloss | off f1-score    | online  logloss |   compare   |feature                  | model   | other trick                                   | comments                |
+| ----------  |--------   | ---        |----             |---------        | ------------|-------------------------|---------|-----------------------------------------------|----------               |
+| 2016-05-13  | liu zheng |   -        | -               |    4.47070      |   baseline  |   6 conv layers cnn     | cnn     | mirror,rotate,resize 64x64                    | what a shame....        |
+| 2016-05-15  | chenqiang |   -        |  -              |     14.*        |   *_*       |   9600 hog feature      | forest  | no                                            | it must be over-fitting |

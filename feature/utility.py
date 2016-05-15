@@ -1,5 +1,4 @@
 __author__ = 'fucus'
-
 import os
 import skimage.io
 import logging
