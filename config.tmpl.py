@@ -21,3 +21,6 @@ class Project:
 
     # required, result output path
     result_output_path = "./result/"
+
+    # required, save cache or not
+    save_cache = False

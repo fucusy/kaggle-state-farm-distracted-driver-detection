@@ -48,9 +48,12 @@ if __name__ == '__main__':
     test_img_names, test_x_feature = load_test_feature(Project.test_img_folder_path, hog_feature_cache, test_num)
     logging.info("load test feature done")
 
-    logging.info("saving feature cache now")
-    save_cache(hog_feature_cache)
-    logging.info("save feature cache end")
+    if Project.save_cache:
+        logging.info("saving feature cache now")
+        save_cache(hog_feature_cache)
+        logging.info("save feature cache end")
+    else:
+        logging.info("skip saving the feature cache")
 
     del hog_feature_cache
 
