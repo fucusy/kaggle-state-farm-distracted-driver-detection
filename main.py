@@ -27,8 +27,8 @@ if __name__ == '__main__':
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 
-    train_num = 100000
-    test_num = 100000
+    train_num = -1
+    test_num = -1
 
     start_time = datetime.datetime.now()
     logging.info('start program---------------------')
@@ -58,11 +58,11 @@ if __name__ == '__main__':
     del hog_feature_cache
 
     logging.info("start predict test data")
-    predict_result = Project.predict_model.predict(test_x_feature)
+    predict_result = Project.predict_model.predict_proba(test_x_feature)
     logging.info("predict test data done")
 
     logging.info("start to generate the final file used to submit")
-    generate_result_file(test_img_names[:len(predict_result)], predict_result)
+    generate_result_file(test_img_names[:len(predict_result)], predict_result, Project.predict_model.model.classes_)
     logging.info("generated the final file used to submit")
 
     end_time = datetime.datetime.now()
