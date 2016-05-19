@@ -26,7 +26,10 @@ A project built for kaggle competition [distracted drivers detection](https://ww
 
 #实验结果记录
 
-| submit date | name      | offlogloss | off f1-score    | online  logloss |   compare   |feature                  | model   | other trick                                   | comments                |
-| ----------  |--------   | ---        |----             |---------        | ------------|-------------------------|---------|-----------------------------------------------|----------               |
-| 2016-05-13  | liu zheng |   -        | -               |    4.47070      |   baseline  |   6 conv layers cnn     | cnn     | mirror,rotate,resize 64x64                    | what a shame....        |
-| 2016-05-15  | chenqiang |   -        |  -              |     14.*        |   *_*       |   9600 hog feature      | forest  | no                                            | it must be over-fitting |
+| submit date | name      | offlogloss | off f1-score    | online  logloss |   compare   |feature                  | model   | other trick                                   | comments                           |
+| ----------  |--------   | ---        |----             |---------        | ------------|-------------------------|---------|-----------------------------------------------|----------                          |
+| 2016-05-13  | liu zheng |   -        | -               |    4.47070      |             |   6 conv layers cnn     | cnn     | mirror,rotate,resize 64x64                    | what a shame....                   |
+| 2016-05-15  | chenqiang |   -        |  -              |     14.*        |   *_*       |   9600 hog feature      | forest  | no                                            | it must be over-fitting            |
+| 2016-05-15  | chenqiang |   -        |  -              |     2.30259     |   *_*       |    all 0.1              |         | no                                            | base line                          |
+| 2016-05-19  | chenqiang |   -        |  0.9            |     1.66477     |             |   9600 hog feature      | forest  | forest with probability                       | still have a huge space to improve |
+

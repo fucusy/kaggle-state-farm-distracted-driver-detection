@@ -48,6 +48,6 @@ if __name__ == '__main__':
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 
     csv_file_path = "%s/result/2016-05-15 08:25.csv" % Project.project_path
-    output_img_path = "%s/output_img/" % Project.project_path
+    output_img_path = "%s/../output_img/" % Project.project_path
     restructure_img(csv_file_path, output_img_path)
 
