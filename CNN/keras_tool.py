@@ -33,7 +33,7 @@ def load_test_image_path_list(path):
     :return:
     """
     list_path = os.listdir(path)
-    result = ["%s/%s" %(path, x) for x in list_path if x.endswith("jpg")]
+    result = ["%s/%s" % (path, x) for x in list_path if x.endswith("jpg")]
     return np.array(result)
 
 def load_train_image_path_list_and_label(path):
@@ -45,7 +45,7 @@ def load_train_image_path_list_and_label(path):
         result = load_test_image_path_list(path)
         label_list += [x] * len(result)
         result_list += list(result)
-    return np.array(label_list), np.array(result_list)
+    return np.array(result_list), np.array(label_list)
 
 ####  preprocess function
 
@@ -120,14 +120,14 @@ class DataSet(object):
         image_list = self.image_path_list_to_image_pic_list(self._images_path[start:end])
         image_path = [os.path.basename(x) for x in self._images_path[start:end]]
         if need_label and self._images_label is not None:
-            return image_list, image_path, self._images_label[start:end]
+            return image_list, self._images_label[start:end], image_path
         else:
             return image_list, image_path
 
 if __name__ == '__main__':
     data_set = load_train_data_set(config.Project.train_img_folder_path)
     while data_set.have_next():
-        img_list = data_set.next_batch(2, need_label=True)
+        img_list, img_label, _ = data_set.next_batch(2, need_label=True)
         print(img_list)
         print(img_label)
         break
