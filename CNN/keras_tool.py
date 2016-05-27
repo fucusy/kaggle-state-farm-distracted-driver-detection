@@ -1,10 +1,12 @@
 __author__ = 'fucus'
 
+import sys
+sys.path.append('../')
+import config
 from keras.models import model_from_json
 import os
 import numpy as np
 from scipy.misc import imread, imresize
-import config
 
 
 
@@ -34,6 +36,16 @@ def load_test_image_path_list(path):
     result = ["%s/%s" %(path, x) for x in list_path if x.endswith("jpg")]
     return np.array(result)
 
+def load_train_image_path_list_and_label(path):
+    label_list = []
+    result_list = []
+    for x in range(10):
+        sub_folder = 'c%d' % x
+        path = "%s/%s" % (config.Project.train_img_folder_path, sub_folder)
+        result = load_test_image_path_list(path)
+        label_list += [x] * len(result)
+        result_list += list(result)
+    return np.array(label_list), np.array(result_list)
 
 ####  preprocess function
 
@@ -55,21 +67,24 @@ def load_test_data_set(test_image_path):
     test_image_list = load_test_image_path_list(test_image_path)
     return DataSet(test_image_list)
 
-
+def load_train_data_set(path):
+    image_list, image_label = load_train_image_path_list_and_label(path)
+    return DataSet(image_list, image_label)
 
 class DataSet(object):
 
     def __init__(self,
-               images_path_list):
+               images_path_list, image_label_list=None):
         """
 
         :param images_path_list: numpy.array
         :param labels: numpy.array
         :return:
-s        """
+        """
 
         self._num_examples = images_path_list.shape[0]
         self._images_path = images_path_list
+        self._images_label = image_label_list
         self._epochs_completed = 0
         self._index_in_epoch = 0
 
@@ -98,17 +113,21 @@ s        """
     def have_next(self):
         return self._index_in_epoch < self._num_examples
 
-    def next_batch(self, batch_size):
+    def next_batch(self, batch_size, need_label=False):
         start = self._index_in_epoch
         end = min(self._index_in_epoch + batch_size, self._num_examples)
         self._index_in_epoch = end
         image_list = self.image_path_list_to_image_pic_list(self._images_path[start:end])
         image_path = [os.path.basename(x) for x in self._images_path[start:end]]
-        return image_list, image_path
-
+        if need_label and self._images_label is not None:
+            return image_list, image_path, self._images_label[start:end]
+        else:
+            return image_list, image_path
 
 if __name__ == '__main__':
-    test_data_set = load_test_data_set(config.Project.test_img_folder_path)
-
-    while test_data_set.have_next():
-        img_list = test_data_set.next_batch(128)
+    data_set = load_train_data_set(config.Project.train_img_folder_path)
+    while data_set.have_next():
+        img_list = data_set.next_batch(2, need_label=True)
+        print(img_list)
+        print(img_label)
+        break
