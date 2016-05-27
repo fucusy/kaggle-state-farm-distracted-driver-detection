@@ -9,7 +9,6 @@ import numpy as np
 from scipy.misc import imread, imresize
 from keras.utils.np_utils import to_categorical
 
-
 def load_model_from_file(network_structure_path, weight_path, loss='categorical_crossentropy', optimizer='adagrad'):
     """
     load the keras model, from your saved model
@@ -72,7 +71,6 @@ def load_train_data_set(path):
     return DataSet(image_list, image_label)
 
 class DataSet(object):
-
     def __init__(self,
                images_path_list, image_label_list=None):
         """
@@ -84,14 +82,28 @@ class DataSet(object):
 
         self._num_examples = images_path_list.shape[0]
         self._images_path = images_path_list
-        self._images_label = image_label_list
         self._epochs_completed = 0
         self._index_in_epoch = 0
+        if image_label_list is not None:
+            random = 2016
+            np.random.seed(random)
+            permut = np.random.permutation(len(images_path_list))
+            self._images_path = images_path_list[permut]
+            self._images_label = image_label_list[permut]
 
+    
+    def set_index_in_epoch(self, index):
+        self._index_in_epoch = index
+    def reset_index(self):
+        self.set_index_in_epoch(0)
 
     @property
     def image_path_list(self):
         return self._images_path
+
+    @property
+    def image_label_list(self):
+        return self._images_label
 
     @property
     def num_examples(self):
@@ -126,6 +138,7 @@ class DataSet(object):
 
 if __name__ == '__main__':
     data_set = load_train_data_set(config.Project.train_img_folder_path)
+    print(data_set.image_label_list)
     while data_set.have_next():
         img_list, img_label, _ = data_set.next_batch(2, need_label=True)
         print(img_list)

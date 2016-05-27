@@ -6,9 +6,10 @@ sys.path.append("../../")
 
 from tool.keras_tool import *
 import config
-from CNN.vgg_try_karea.kaggle_driver_cnn import VGG_16
+from CNN.vgg_try_karea.train_model import VGG_16
 
-batch_size = 16
+
+batch_size = 128
 
 try:
     model = load_model_from_file(config.CNN.keras_structure_files, config.CNN.keras_train_weight)
