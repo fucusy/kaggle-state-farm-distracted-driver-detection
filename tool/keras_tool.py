@@ -9,7 +9,17 @@ import numpy as np
 from scipy.misc import imread, imresize
 from keras.utils.np_utils import to_categorical
 
-def load_model_from_file(network_structure_path, weight_path, loss='categorical_crossentropy', optimizer='adagrad'):
+def save_model(model, cross=''):
+    json_string = model.to_json()
+    cache_path = "%s/cache" % config.Project.project_path
+    if not os.path.isdir(cache_path):
+        os.mkdir(cache_path)
+    model_filename = 'architecture_' + cross + '.json'
+    weights_filename = 'model_weights_' + cross + '.h5'
+    open(os.path.join(cache_path, model_filename), 'w').write(json_string)
+    model.save_weights(os.path.join(cache_path, weights_filename), overwrite=True)
+
+def load_model_from_file(cross, loss='categorical_crossentropy', optimizer='adagrad'):
     """
     load the keras model, from your saved model
 
@@ -19,11 +29,13 @@ def load_model_from_file(network_structure_path, weight_path, loss='categorical_
     :param optimizer:
     :return:
     """
-    model = model_from_json(network_structure_path)
-    model.load_weights(weight_path)
+    model_filename = 'architecture_' + cross + '.json'
+    weights_filename = 'model_weights_' + cross + '.h5'
+    cache_path = "%s/cache" % config.Project.project_path
+    model = model_from_json(open(os.path.join(cache_path, model_filename)).read())
+    model.load_weights(os.path.join(cache_path, weights_filename))
     model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
     return model
-
 
 def load_test_image_path_list(path):
     """

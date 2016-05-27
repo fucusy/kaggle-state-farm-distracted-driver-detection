@@ -23,26 +23,10 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, \
 
 from keras.optimizers import SGD
 from keras.models import model_from_json
-from CNN.keras_tool import *
+from tool.keras_tool import *
 
 img_rows, img_cols, color_type = 224, 224, 3
 
-def save_model(model, index, cross=''):
-    json_string = model.to_json()
-    if not os.path.isdir('cache'):
-        os.mkdir('cache')
-    model_filename = 'architecture_' + str(index) + cross + '.json'
-    weights_filename = 'model_weights_' + str(index) + cross + '.h5'
-    open(os.path.join('cache', model_filename), 'w').write(json_string)
-    model.save_weights(os.path.join('cache', weights_filename), overwrite=True)
-
-
-def read_model(index, cross=''):
-    model_filename = 'architecture_' + str(index) + cross + '.json'
-    weights_filename = 'model_weights_' + str(index) + cross + '.h5'
-    model = model_from_json(open(os.path.join('cache', model_filename)).read())
-    model.load_weights(os.path.join('cache', weights_filename))
-    return model
 
 def VGG_16(weights_path=None):
     # standard VGG16 network architecture
@@ -115,14 +99,19 @@ def train(nb_epoch=10,  model_desc=''):
     data_set = load_train_data_set(config.Project.train_img_folder_path)
 
     count = 0
+    total_count = data_set.num_examples * nb_epoch
     for i in range(nb_epoch):
         data_set.reset_index()
         while data_set.have_next():
             img_list, img_label, _ = data_set.next_batch(batch_size, True)
             img_label_cate = to_categorical(img_label, 10)
             if count % 10 == 0:
+                have_train_images = batch_size * count
+                left_train_images = total_count - have_train_images
                 loss_and_metrics = model.evaluate(img_list, img_label_cate, batch_size=batch_size)
-                print(loss_and_metrics)
+                print("have trained %s images: logloss: %f" %(have_train_images, loss_and_metrics))
+                print("%d images left to train, total %d nb_epoch, current in %d" % (left_train_images, nb_epoch, i))
+                print("----------------------")
             model.train_on_batch(img_list, img_label_cate)
             count += 1
             
@@ -130,4 +119,4 @@ def train(nb_epoch=10,  model_desc=''):
         save_model(model, model_desc)
 
 if __name__ == '__main__':
-    train(nb_epoch=3, model_desc='_vgg_16_2x20')
+    train(nb_epoch=30, model_desc='vgg_16')
