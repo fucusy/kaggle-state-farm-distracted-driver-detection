@@ -16,9 +16,9 @@ try:
     model = load_model_from_file(config.CNN.keras_structure_files, config.CNN.keras_train_weight)
     print("load graph from json")
 except:
-    model = VGG_16(config.CNN.keras_train_weight)
     print("fail to load graph from json")
-    print("load graph from code")
+    model = VGG_16(config.CNN.keras_train_weight)
+    print("loaded graph from code")
 
 
 test_data_set = load_test_data_set(config.Project.test_img_folder_path)
@@ -30,4 +30,3 @@ while test_data_set.have_next():
     predict.append(result)
 
 generate_result_file(test_data_set.image_path_list, predict)
-

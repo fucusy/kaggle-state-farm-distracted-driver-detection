@@ -31,8 +31,9 @@ def load_test_image_path_list(path):
     :return:
     """
     list_path = os.listdir(path)
-    result = [x for x in list_path if x.endswith("jpg")]
-    return result
+    result = ["%s/%s" %(path, x) for x in list_path if x.endswith("jpg")]
+
+    return np.array(result)
 
 
 ####  preprocess function
