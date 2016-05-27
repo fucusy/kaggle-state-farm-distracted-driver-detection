@@ -7,7 +7,7 @@ from keras.models import model_from_json
 import os
 import numpy as np
 from scipy.misc import imread, imresize
-
+from keras.utils.np_utils import to_categorical
 
 
 def load_model_from_file(network_structure_path, weight_path, loss='categorical_crossentropy', optimizer='adagrad'):
