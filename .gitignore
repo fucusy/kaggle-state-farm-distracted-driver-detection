@@ -1,8 +1,5 @@
-# ignore editor auto-generated files
-.idea
-
-# ignore mac os rubissh folder
-.DS_Store
+# ignore other hidden files
+.*
 
 # ignore program cache folder
 cache
@@ -17,6 +14,12 @@ config.py
 */__pycache__
 __pycache__
 
-
 # ignore outpu result path
 result
+
+# ignore program output
+nohup.out
+run.log
+
+# ignore pyc files
+*.pyc
