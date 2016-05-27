@@ -116,15 +116,8 @@ def run_cross_validation(nfolds=10, nb_epoch=10, validation_split=0.2, model_des
 
     X_train, y_train, driver_id, unique_drivers = load_train(img_rows, img_cols, color_type)
     X_train, y_train = preprocess_train(X_train, y_train)
-
     num_fold = 0
-    kf = KFold(len(unique_drivers), n_folds=nfolds,
-               shuffle=True, random_state=random_state)
-    for train_drivers, test_drivers in kf:
-        num_fold += 1
-        print('Start KFold number {} from {}'.format(num_fold, nfolds))
-
-    model = VGG_16(config.Project.keras_train_weight)
+    model = VGG_16(config.CNN.keras_train_weight)
 
 
     model.fit(X_train, y_train, batch_size=batch_size,

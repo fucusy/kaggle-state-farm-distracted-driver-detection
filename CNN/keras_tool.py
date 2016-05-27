@@ -4,7 +4,7 @@ from keras.models import model_from_json
 import os
 import numpy as np
 from scipy.misc import imread, imresize
-
+import config
 
 
 
@@ -32,7 +32,6 @@ def load_test_image_path_list(path):
     """
     list_path = os.listdir(path)
     result = ["%s/%s" %(path, x) for x in list_path if x.endswith("jpg")]
-
     return np.array(result)
 
 
@@ -46,9 +45,10 @@ def resize_and_mean(image, size=(224, 224), mean=(103.939, 116.779, 123.68)):
     :return:
     """
     img_resized = imresize(image, size)
+    img_resized = img_resized.transpose((2, 0, 1))
+
     for c in range(3):
         img_resized[c, :, :] = img_resized[c, :, :] - mean[c]
-    img_resized = img_resized.transpose((0, 3, 1, 2))
     return img_resized
 
 def load_test_data_set(test_image_path):
@@ -105,3 +105,10 @@ s        """
         image_list = self.image_path_list_to_image_pic_list(self._images_path[start:end])
         image_path = [os.path.basename(x) for x in self._images_path[start:end]]
         return image_list, image_path
+
+
+if __name__ == '__main__':
+    test_data_set = load_test_data_set(config.Project.test_img_folder_path)
+
+    while test_data_set.have_next():
+        img_list = test_data_set.next_batch(128)
