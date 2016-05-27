@@ -1,52 +1,20 @@
 __author__ = 'fucus'
 
+import sys
+sys.path.append('../')
 from config import Project as p
-import pandas as pd
 import logging
 import time
 import os
+import numpy as np
 
-def generate_result_file(name, y_result, type_list=None):
-    df = pd.DataFrame({"img": name})
-    driver_type_list = ["c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9"]
+def generate_result_file(name, y_result):
+    if len(name) != len(y_result):
+        print("error the len of name:%d do not equal the len of y_result:%d" % (len(name), len(y_result)))
+        exit()
 
-    # if y_result is a list of type
-    if len(y_result.shape) == 1:
-        y_result_matrix = []
-        for j in range(len(driver_type_list)):
-            y_result_matrix.append([])
-        for i in range(len(y_result)):
-            driver_type = y_result[i]
-            if driver_type not in driver_type_list:
-                logging.warning("the predicted driver type:%s of %s not in driver_type_list:%s, it's incorrect, force set"
-                                " it to c0" % (driver_type, name[i], ",".join(driver_type_list)))
-                driver_type = "c0"
-            driver_index = driver_type_list.index(driver_type)
+    y_result_matrix =  y_result
 
-            for j in range(len(driver_type_list)):
-                if j != driver_index:
-                    y_result_matrix[j].append(0)
-                else:
-                    y_result_matrix[j].append(1)
-
-    # if y_result is a matrix of type probability
-    else:
-        driver_type_to_index = {}
-        driver_type_list = sorted(type_list)
-        y_result_matrix = []
-        for i in range(len(type_list)):
-            driver_type_to_index[type_list[i]] = i
-
-        for j in range(len(driver_type_list)):
-            y_result_matrix.append([])
-
-        for i in range(len(y_result)):
-            for j in range(len(driver_type_list)):
-                driver_type = driver_type_list[j]
-                y_result_matrix[j].append(y_result[i][driver_type_to_index[driver_type]])
-
-    for i in range(len(driver_type_list)):
-        df[driver_type_list[i]] = y_result_matrix[i]
     file_name = time.strftime("%Y-%m-%d %H:%M.csv")
     output_path = p.result_output_path.strip()
     final_path = ""
@@ -56,4 +24,20 @@ def generate_result_file(name, y_result, type_list=None):
         final_path = "%s/%s" % (p.project_path, output_path)
     if not os.path.exists(final_path):
         os.makedirs(final_path)
-    df.to_csv("%s/%s" % (final_path, file_name), index = False)
+    
+    file_obj = open("%s/%s" %(final_path, file_name), "w")
+    file_obj.write(','.join(['img','c0','c1','c2','c3','c4','c5','c6','c7','c8','c9']) + '\n')
+    for idx in range(len(name)):
+        file_obj.write("%s," % name[idx])
+        num_to_str_result = ["%f" % x for x in y_result_matrix[idx]]
+        file_obj.write(','.join(num_to_str_result))
+        file_obj.write('\n')
+    file_obj.close()
+
+if __name__ == '__main__':
+    name = np.array(['test.jpg', 'test2.jpg']);
+    y_result = np.array([
+        [0.1, 0.2, 0.3, 0.1, 0.1, 0.1, 0.1, 0.0, 0.0, 0.0],
+        [0.1, 0.2, 0.3, 0.1, 0.1, 0.1, 0.1, 0.0, 0.0, 0.0]
+        ], dtype=np.float32);
+    generate_result_file(name, y_result)
