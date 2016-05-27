@@ -47,6 +47,7 @@ def resize_and_mean(image, size=(224, 224), mean=(103.939, 116.779, 123.68)):
     img_resized = imresize(image, size)
     for c in range(3):
         img_resized[c, :, :] = img_resized[c, :, :] - mean[c]
+    img_resized = img_resized.transpose((0, 3, 1, 2))
     return img_resized
 
 def load_test_data_set(test_image_path):
