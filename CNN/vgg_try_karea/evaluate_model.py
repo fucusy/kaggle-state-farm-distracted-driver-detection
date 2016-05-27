@@ -4,12 +4,9 @@ import sys
 # append the project root as python lib search
 sys.path.append("../../")
 
-from keras.utils.np_utils import to_categorical
-from CNN.keras_tool import *
+from tool.keras_tool import *
 import config
-from tool.file import generate_result_file
 from CNN.vgg_try_karea.kaggle_driver_cnn import VGG_16
-import numpy as np
 
 batch_size = 16
 
