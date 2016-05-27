@@ -135,5 +135,6 @@ def run_cross_validation(nfolds=10, nb_epoch=10, validation_split=0.2, model_des
 
     print('end saving model............')
 
-run_cross_validation(nfolds=2, nb_epoch=3, validation_split=0.15,
+if __name__ == '__main__':
+    run_cross_validation(nfolds=2, nb_epoch=3, validation_split=0.15,
                      model_desc='_vgg_16_2x20')

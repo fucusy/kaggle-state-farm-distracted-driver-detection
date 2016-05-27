@@ -9,6 +9,7 @@ A project built for kaggle competition [distracted drivers detection](https://ww
 * python library:
     in the requirements.md
     to install pip packages use : `pip3.5 install -r pip_packages.txt`
+    install tenserflow(tensorflow==0.8.0) from [here](https://www.tensorflow.org/versions/r0.8/get_started/os_setup.html#pip-installation)
 * Linux or unix System, may be windows
     
 ## how to run

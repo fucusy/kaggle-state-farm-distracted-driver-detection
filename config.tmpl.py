@@ -28,5 +28,11 @@ class Project:
     # required, save cache or not
     save_cache = False
 
-    # 
-    keras_train_weight = "%s/CNN/vgg_try_karea/cache/model_weights_2_vgg_16_2x20.h5" % project_path 
+
+class CNN:
+    #
+    keras_train_weight = "%s/CNN/vgg_try_karea/cache/model_weights_2_vgg_16_2x20.h5" % project_path
+
+
+    # keras structure files
+    keras_structure_files = ""
