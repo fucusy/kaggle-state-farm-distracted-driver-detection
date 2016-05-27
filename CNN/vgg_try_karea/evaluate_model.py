@@ -8,10 +8,10 @@ from keras.utils.np_utils import to_categorical
 from CNN.keras_tool import *
 import config
 from tool.file import generate_result_file
-from CNN.vgg_try_karea.kaggle_driver_cnn import VGG_16
+from CNN.vgg_try_karea.train_model import VGG_16
 import numpy as np
 
-batch_size = 16
+batch_size = 128
 
 try:
     model = load_model_from_file(config.CNN.keras_structure_files, config.CNN.keras_train_weight)
