@@ -4,7 +4,7 @@ import sys
 # append the project root as python lib search
 sys.path.append("../../")
 
-
+from keras.utils.np_utils import to_categorical
 from CNN.keras_tool import *
 import config
 from tool.file import generate_result_file
@@ -22,13 +22,11 @@ except:
     print("loaded graph from code")
 
 
-test_data_set = load_test_data_set(config.Project.test_img_folder_path)
+data_set = load_train_data_set(config.Project.train_img_folder_path)
 predict = []
 
-while test_data_set.have_next():
-    img_list, _ = test_data_set.next_batch(128)
-    result = model.predict(img_list)
-    predict.append(result)
-    break
-predict = np.array(predict)
-generate_result_file(test_data_set.image_path_list[:len(predict)], predict)
+while data_set.have_next():
+    img_list, img_label, _ = data_set.next_batch(1024, need_label=True)
+    img_label_cate = to_categorical(img_label)
+    loss_and_metrics = model.evaluate(img_list, img_label_cate, batch_size=1024)
+    print(loss_and_metrics)
