@@ -15,7 +15,7 @@ def generate_result_file(name, y_result):
 
     y_result_matrix =  y_result
 
-    file_name = time.strftime("%Y-%m-%d %H:%M.csv")
+    file_name = time.strftime("%Y_%m_%d__%H_%M.csv")
     output_path = p.result_output_path.strip()
     final_path = ""
     if len(output_path) > 0 and output_path[0] == '/':

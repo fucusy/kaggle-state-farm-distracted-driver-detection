@@ -6,7 +6,7 @@ sys.path.append("../../")
 
 from tool.keras_tool import *
 import config
-from CNN.vgg_try_karea.train_model import VGG_16
+from model.cnn_model import VGG_16
 
 
 batch_size = 128
