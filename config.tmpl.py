@@ -35,3 +35,6 @@ class CNN:
 
     # keras structure files
     keras_structure_files = ""
+    vgg_weight_file_path = "/home/chenqiang/kaggle_driver_data/vgg16_weights.h5"
+
+    fine_tuning_vgg_weight_file_path = ""

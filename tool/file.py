@@ -28,14 +28,14 @@ def generate_result_file(name, y_result):
     file_obj = open("%s/%s" %(final_path, file_name), "w")
     file_obj.write(','.join(['img','c0','c1','c2','c3','c4','c5','c6','c7','c8','c9']) + '\n')
     for idx in range(len(name)):
-        file_obj.write("%s," % name[idx])
+        file_obj.write("%s," % os.path.basename(name[idx]))
         num_to_str_result = ["%f" % x for x in y_result_matrix[idx]]
         file_obj.write(','.join(num_to_str_result))
         file_obj.write('\n')
     file_obj.close()
 
 if __name__ == '__main__':
-    name = np.array(['test.jpg', 'test2.jpg']);
+    name = np.array(['test.jpg', '/home/cq/test2.jpg']);
     y_result = np.array([
         [0.1, 0.2, 0.3, 0.1, 0.1, 0.1, 0.1, 0.0, 0.0, 0.0],
         [0.1, 0.2, 0.3, 0.1, 0.1, 0.1, 0.1, 0.0, 0.0, 0.0]

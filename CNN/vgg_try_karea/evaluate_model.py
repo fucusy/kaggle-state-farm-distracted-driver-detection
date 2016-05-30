@@ -11,18 +11,9 @@ from CNN.vgg_try_karea.train_model import VGG_16
 
 batch_size = 128
 
-try:
-    model = load_model_from_file(config.CNN.keras_structure_files, config.CNN.keras_train_weight)
-    print("load graph from json")
-except:
-    print("fail to load graph from json")
-    model = VGG_16(config.CNN.keras_train_weight)
-    print("loaded graph from code")
-
-
+model = VGG_16(weights_path=config.CNN.keras_train_weight)
 data_set = load_train_data_set(config.Project.train_img_folder_path)
 predict = []
-
 
 while data_set.have_next():
     img_list, img_label, _ = data_set.next_batch(batch_size, need_label=True)

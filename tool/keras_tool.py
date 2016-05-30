@@ -9,6 +9,8 @@ import numpy as np
 from scipy.misc import imread, imresize
 from keras.utils.np_utils import to_categorical
 
+
+
 def save_model(model, cross=''):
     json_string = model.to_json()
     cache_path = "%s/cache" % config.Project.project_path
@@ -104,10 +106,6 @@ class DataSet(object):
             self._images_label = image_label_list[permut]
 
     
-    def set_index_in_epoch(self, index):
-        self._index_in_epoch = index
-    def reset_index(self):
-        self.set_index_in_epoch(0)
 
     @property
     def image_path_list(self):
@@ -125,6 +123,11 @@ class DataSet(object):
     def epochs_completed(self):
         return self._epochs_completed
 
+    def set_index_in_epoch(self, index):
+        self._index_in_epoch = index
+    def reset_index(self):
+        self.set_index_in_epoch(0)
+
     def image_path_list_to_image_pic_list(self, image_path_list, preprocess_func=resize_and_mean):
         image_pic_list = []
         for image_path in image_path_list:
@@ -136,6 +139,12 @@ class DataSet(object):
 
     def have_next(self):
         return self._index_in_epoch < self._num_examples
+    def load_all_image(self, need_label=False):
+        index_in_epoch = self._index_in_epoch
+        self.reset_index()
+        result = self.next_batch(self.num_examples, need_label)
+        self.set_index_in_epoch(index_in_epoch)
+        return result
 
     def next_batch(self, batch_size, need_label=False):
         start = self._index_in_epoch
