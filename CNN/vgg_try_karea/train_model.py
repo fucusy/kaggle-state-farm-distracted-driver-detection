@@ -122,7 +122,7 @@ def train_predict(nb_epoch=10, weights_path=None):
     while test_data_set.have_next():
         img_list, _ = test_data_set.next_batch(128)
         result = model.predict(img_list)
-        predict += result
+        predict += list(result)
     predict = np.array(predict)
     generate_result_file(test_data_set.image_path_list[:len(predict)], predict)
 
@@ -130,4 +130,4 @@ if __name__ == '__main__':
     level = logging.DEBUG
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
-    train_predict(nb_epoch=5, weights_path=config.CNN.keras_train_weight)
+    train_predict(nb_epoch=1, weights_path=config.CNN.keras_train_weight)

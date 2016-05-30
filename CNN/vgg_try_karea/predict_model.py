@@ -11,7 +11,7 @@ from tool.file import generate_result_file
 from CNN.vgg_try_karea.kaggle_driver_cnn import VGG_16
 import numpy as np
 
-batch_size = 128
+batch_size = 64
 
 model = VGG_16(weights_path=config.CNN.keras_train_weight)
 
