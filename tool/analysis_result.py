@@ -26,11 +26,14 @@ def restructure_img(result_csv_file_path, output_img_path):
             else:
                 img_path = "%s/%s" % (Project.test_img_folder_path, split_line[0])
 
+                max_score = float(split_line[1])
+                max_index = 0
                 for j in range(10):
-                    if int(split_line[j+1]) > 0.5:
-                        output_img_type_path = "%s/c%d/" % (output_img_path, j)
-                        copy2(img_path, output_img_type_path)
-                        break
+                    if float(split_line[j+1]) > max_score:
+                        max_score = float(split_line[j+1])
+                        max_index = j
+                output_img_type_path = "%s/c%d/" % (output_img_path, max_index)
+                copy2(img_path, output_img_type_path)
 
         count += 1
 
@@ -47,7 +50,7 @@ if __name__ == '__main__':
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 
-    csv_file_path = "%s/result/2016-05-15 08:25.csv" % Project.project_path
+    csv_file_path = "%s/result/2016_05_30__14_10.csv" % Project.project_path
     output_img_path = "%s/../output_img/" % Project.project_path
     restructure_img(csv_file_path, output_img_path)
 
