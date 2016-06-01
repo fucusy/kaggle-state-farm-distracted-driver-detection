@@ -43,4 +43,5 @@ A project built for kaggle competition [distracted drivers detection](https://ww
 | 2016-05-15  | chenqiang |   -    | 2.3025 |    all 0.1              |         | no                                            | base line                          |
 | 2016-05-19  | chenqiang |   -    | 1.6647 |   9600 hog feature      | forest  | forest with probability                       | still have a huge space to improve |
 | 2016-06-01  | chenqiang |   1.37 | 1.59   |   vgg fine-tuning       | cnn     | replace last layer 1000 node, to 10 node.     | still have a huge space to improve |
+| 2016-06-01  | chenqiang |   1.09 | 1.34   |   vgg fine-tuning       | cnn     | replace last layer 1000 node, to 10 node.     | still have a huge space to improve |
 
