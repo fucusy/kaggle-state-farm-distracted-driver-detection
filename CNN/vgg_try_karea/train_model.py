@@ -8,7 +8,7 @@ sys.path.append("../../")
 import config
 
 
-from model.cnn_model import VGG_16
+from model.cnn_model import *
 from tool.file import generate_result_file
 from tool.keras_tool import load_train_data_set
 from tool.keras_tool import to_categorical
@@ -17,7 +17,7 @@ import logging
 import numpy as np
 
 
-def train_predict(nb_epoch=10, weights_path=None):
+def train(nb_epoch=10, weights_path=None):
     # Now it loads color image
     # input image dimensions
     batch_size = 64
@@ -33,20 +33,20 @@ def train_predict(nb_epoch=10, weights_path=None):
                     ,validation_split=0.15)
 
     print('end saving model............')
-    model.save_weights(weights_path, overwrite=True)
+    save_model(model, weights_path)
 
-    test_data_set = load_test_data_set(config.Project.test_img_folder_path)
-    predict = []
-
-    while test_data_set.have_next():
-        img_list, _ = test_data_set.next_batch(128)
-        result = model.predict(img_list)
-        predict += list(result)
-    predict = np.array(predict)
-    generate_result_file(test_data_set.image_path_list[:len(predict)], predict)
-
+#    test_data_set = load_test_data_set(config.Project.test_img_folder_path)
+#    predict = []
+#
+#    while test_data_set.have_next():
+#        img_list, _ = test_data_set.next_batch(128)
+#        result = model.predict(img_list)
+#        predict += list(result)
+#    predict = np.array(predict)
+#    generate_result_file(test_data_set.image_path_list[:len(predict)], predict)
+#
 if __name__ == '__main__':
     level = logging.DEBUG
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
-    train_predict(nb_epoch=5, weights_path=config.CNN.keras_train_weight)
+    train(nb_epoch=1, weights_path=config.CNN.keras_train_weight)

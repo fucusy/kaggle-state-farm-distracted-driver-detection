@@ -3,7 +3,7 @@ __author__ = 'fucus'
 import sys
 sys.path.append('../')
 import config
-from keras.models import model_from_json
+from keras.models import model_from_yaml
 import os
 import numpy as np
 from scipy.misc import imread, imresize
@@ -11,32 +11,29 @@ from keras.utils.np_utils import to_categorical
 
 
 
-def save_model(model, cross=''):
-    json_string = model.to_json()
-    cache_path = "%s/cache" % config.Project.project_path
-    if not os.path.isdir(cache_path):
-        os.mkdir(cache_path)
-    model_filename = 'architecture_' + cross + '.json'
-    weights_filename = 'model_weights_' + cross + '.h5'
-    open(os.path.join(cache_path, model_filename), 'w').write(json_string)
-    model.save_weights(os.path.join(cache_path, weights_filename), overwrite=True)
+def save_model(model, weight_path, structure_path=''):
+    """
+    save model to file system
+    :param model, the model
+    :param weight_path, the weight path file you want, required
+    :param structure_path, the structure  path file you want, optional
+    """
+    model_string = model.to_yaml()
+    if structure_path == '':
+        structure_path = weight_path + ".yaml" 
+    open(structure_path, 'w').write(model_string)
+    model.save_weights(weight_path, overwrite=True)
 
-def load_model_from_file(cross, loss='categorical_crossentropy', optimizer='adagrad'):
+def load_model(weight_path, structure_path=''):
     """
     load the keras model, from your saved model
 
-    :param network_structure_path:
-    :param weight_path:
-    :param loss:
-    :param optimizer:
-    :return:
+    :return: uncompile model
     """
-    model_filename = 'architecture_' + cross + '.json'
-    weights_filename = 'model_weights_' + cross + '.h5'
-    cache_path = "%s/cache" % config.Project.project_path
-    model = model_from_json(open(os.path.join(cache_path, model_filename)).read())
-    model.load_weights(os.path.join(cache_path, weights_filename))
-    model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
+    if structure_path == '':
+        structure_path = weight_path + ".yaml"
+    model = model_from_yaml(open(structure_path).read())
+    model.load_weights(weight_path)
     return model
 
 def load_test_image_path_list(path):
