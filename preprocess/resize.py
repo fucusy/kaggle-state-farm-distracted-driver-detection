@@ -40,12 +40,7 @@ def resize_image(original_training_data_path=config.Project.original_training_fo
     if not os.path.exists(testing_save_path):
         os.makedirs(testing_save_path)
 
-    if img_size[0] == 1:
-        as_grey = True
-    else:
-        as_grey = False
-
-
+    as_grey = (img_size[0] == 1)
 
     for c in class_list:
         class_path = os.path.join(original_training_data_path, c)
@@ -81,5 +76,4 @@ if __name__ == "__main__":
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 
-
-    resize_image(force=True)
+    resize_image()
