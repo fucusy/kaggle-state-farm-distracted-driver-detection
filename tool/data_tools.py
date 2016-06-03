@@ -131,10 +131,15 @@ def resize_image(original_training_data_path=config.Project.original_training_fo
 
 
 class DataSet(object):
-    
     def __init__(self,
-               training_data_path, testing_data_path, mean_image_file_name, fragment_size=2048, img_size=[3, 224, 224],
-               validation_split=0.0, batch_size=32, class_num=10):
+                 training_data_path=config.Project.train_img_folder_path
+                 , testing_data_path=config.Project.test_img_folder_path
+                 , mean_image_file_name=config.Data.mean_image_file_name
+                 , fragment_size=config.Data.fragment_size
+                 , img_size=config.Data.img_size
+                 , validation_split=config.Data.validation_split
+                 , batch_size=config.Data.batch_size
+                 , class_num=config.Data.class_num):
         """
         
         """
@@ -403,6 +408,9 @@ class DataSet(object):
     def get_validation_fragment_num(self):
         return len(self._validation_fragments_list)
 
+
+
+
 if __name__ == '__main__':
     isServer = False
     if not isServer:
@@ -431,33 +439,3 @@ if __name__ == '__main__':
     data_set = DataSet(training_data_path=datapath, testing_data_path=testpath, mean_image_file_name=meanImagePath,
                        fragment_size=2048, img_size=[3, 224, 224],
                        validation_split=0.2, batch_size=32, class_num=10)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
