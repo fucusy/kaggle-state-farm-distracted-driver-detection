@@ -7,6 +7,7 @@ from keras.models import model_from_yaml
 import os
 import numpy as np
 from scipy.misc import imread, imresize
+import logging
 from keras.utils.np_utils import to_categorical
 
 
@@ -80,19 +81,88 @@ def load_test_data_set(test_image_path):
     return DataSet(test_image_list)
 
 
-def load_train_data_set(path):
+def load_data(train_folder, test_folder):
+    """
+
+    :param train_folder:
+    :param test_folder:
+    :return: three DataSet structure include train data, validation data, test data
+    """
+    test_data = load_test_data_set(test_folder)
+    train_data, validation_data = load_train_validation_data_set(train_folder)
+
+    return train_data, validation_data, test_data
+
+
+def get_image_to_person(file_path=config.Project.driver_img_list_path):
+    """
+    :param file_path: the driver list .cvs file path
+    :return: a image_id to person dictionary, image_id means the name remove suffix like '.jpg'
+    """
+
+
+    image_id_to_person = {}
+    count = 0
+
+    for line in open(file_path):
+
+        # ignore first line
+        if count == 0:
+            count += 1
+            continue
+
+        count += 1
+        split_line = line.rstrip('\n').split(',')
+        if len(split_line) == 3:
+            person = split_line[0]
+            driver_type = split_line[1]
+            image_id = split_line[2].split('.')[0]
+            image_id_to_person[image_id] = person
+    return image_id_to_person
+
+
+def load_train_validation_data_set(path, validation_split=0.2):
     image_list, image_label = load_train_image_path_list_and_label(path)
-    return DataSet(image_list, image_label)
+    img_to_person = get_image_to_person()
+    driver_list = sorted(set(img_to_person.values()))
+    train_driver_index_end = int(len(driver_list) * (1-validation_split))
+    train_driver_list = driver_list[:train_driver_index_end]
+    validation_driver_list = driver_list[train_driver_index_end:]
+    logging.info("load train data from driver %s" % ",".join(train_driver_list))
+    logging.info("load validation data from driver %s" % ",".join(validation_driver_list))
+
+    train_image_list = []
+    train_image_label = []
+
+    validation_image_list = []
+    validation_image_label = []
+
+    for i in range(len(image_list)):
+        image_id = os.path.basename(image_list[i]).split('.')[0]
+
+        if img_to_person[image_id] in train_driver_list:
+            train_image_list.append(image_list[i])
+            train_image_label.append(image_label[i])
+        else:
+            validation_image_list.append(image_list[i])
+            validation_image_label.append(image_label[i])
+
+    return DataSet(train_image_list, train_image_label), DataSet(validation_image_list, validation_image_label)
+
+
 
 class DataSet(object):
     def __init__(self,
                images_path_list, image_label_list=None):
         """
 
-        :param images_path_list: numpy.array
-        :param labels: numpy.array
+        :param images_path_list: numpy.array or list
+        :param labels: numpy.array or list
         :return:
         """
+        if type(images_path_list) is list:
+            images_path_list = np.array(images_path_list)
+            image_label_list = np.array(image_label_list)
 
         self._num_examples = images_path_list.shape[0]
         self._images_path = images_path_list
@@ -139,11 +209,11 @@ class DataSet(object):
     def load_all_image(self, need_label=False):
         index_in_epoch = self._index_in_epoch
         self.reset_index()
-        result = self.next_batch(self.num_examples, need_label)
+        result = self.next_fragment(self.num_examples, need_label)
         self.set_index_in_epoch(index_in_epoch)
         return result
 
-    def next_batch(self, batch_size, need_label=False):
+    def next_fragment(self, batch_size, need_label=False):
         start = self._index_in_epoch
         end = min(self._index_in_epoch + batch_size, self._num_examples)
         self._index_in_epoch = end
@@ -155,10 +225,13 @@ class DataSet(object):
             return image_list, image_path
 
 if __name__ == '__main__':
-    data_set = load_train_data_set(config.Project.train_img_folder_path)
-    print(data_set.image_label_list)
-    while data_set.have_next():
-        img_list, img_label, _ = data_set.next_batch(2, need_label=True)
+    level = logging.INFO
+    FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
+    logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
+    train, validation, test = load_data(config.Project.train_img_folder_path, config.Project.test_img_folder_path)
+    print(train.image_label_list)
+    while train.have_next():
+        img_list, img_label, _ = train.next_fragment(2, need_label=True)
         print(img_list)
         print(img_label)
         break
