@@ -2,13 +2,13 @@ import sys
 sys.path.append('../')
 
 import config
-import data_tools as dt
-import model_tools as mt
-import model_inference as mi
+import tool.data_tools as dt
+import tool.model_tools as mt
+import tool.model_inference as mi
 
-from data_tools import DataSet
-from model_tools import KerasModel
-from model_tools import KerasFeatureExtractor
+from tool.data_tools import DataSet
+from tool.model_tools import KerasModel
+from tool.model_tools import KerasFeatureExtractor
 import os
 import numpy as np
 
