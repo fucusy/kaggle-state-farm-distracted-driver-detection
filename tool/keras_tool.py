@@ -36,7 +36,7 @@ def load_model(weight_path, structure_path=''):
     model.load_weights(weight_path)
     return model
 
-def load_test_image_path_list(path):
+def load_image_path_list(path):
     """
 
     :param path: the test image folder
@@ -53,7 +53,7 @@ def load_train_image_path_list_and_label(path):
     for x in range(10):
         sub_folder = 'c%d' % x
         path = "%s/%s" % (config.Project.train_img_folder_path, sub_folder)
-        result = load_test_image_path_list(path)
+        result = load_image_path_list(path)
         label_list += [x] * len(result)
         result_list += list(result)
     return np.array(result_list), np.array(label_list)
@@ -76,7 +76,7 @@ def resize_and_mean(image, size=(224, 224), mean=(103.939, 116.779, 123.68)):
 
 
 def load_test_data_set(test_image_path):
-    test_image_list = load_test_image_path_list(test_image_path)
+    test_image_list = load_image_path_list(test_image_path)
     return DataSet(test_image_list)
 
 

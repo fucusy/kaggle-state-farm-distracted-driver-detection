@@ -19,6 +19,7 @@ import os
 import random
 from keras.utils import np_utils
 import logging
+from tool.keras_tool import load_image_path_list
 
 ''' Make images, which maybe in shape of (n, h, w, ch) for multiple color images,
                                          (h, w, ch) for single color images,
@@ -57,27 +58,27 @@ def images_swap_axes(images, color_type=3):
 
 def compute_mean_image(training_data_path=config.Project.train_img_folder_path
                        , testing_data_path=config.Project.test_img_folder_path
-                       , save_file=config.Data.mean_image_file_name
-                       , save_flag=True):
-    print('computing mean images')
-    folder = os.listdir(training_data_path)
-    trainNum = len(folder)
-    init_flag = 1
+                       , save_file=config.Data.mean_image_file_name):
+    logging.info('computing mean images')
+    folder = ["c%d" % x for x in range(10)]
+    total_num = 0
+    mean_image = None
     for f in folder:
-        img = skimage.img_as_float( skio.imread(training_data_path+f) )
-        if init_flag:
-            mean_image = img
-        else:
-            mean_image += img
-    
-    folder = os.listdir(testing_data_path)
-    testNum = len(folder)
-    for f in folder:
-        img = skimage.img_as_float( skio.imread(training_data_path+f) )
+        folder_path = os.path.join(training_data_path, f)
+        for img_path in load_image_path_list(folder_path):
+            total_num += 1
+            img = skimage.img_as_float(skio.imread(img_path))
+            if mean_image is None:
+                mean_image = img
+            else:
+                mean_image += img
+
+    for file_path in load_image_path_list(testing_data_path):
+        total_num += 1
+        img = skimage.img_as_float( skio.imread(file_path))
         mean_image += img
-    
-    mean_image /= (trainNum + testNum)
-    
+
+    mean_image /= total_num
     
     if len(mean_image.shape) == 2:
         '''if gray, (h, w) to (1, h, w)'''
@@ -88,9 +89,14 @@ def compute_mean_image(training_data_path=config.Project.train_img_folder_path
         '''if color, swap (h, w, ch) to (ch, h, w)'''
         mean_image = mean_image.swapaxes(1,2)
         mean_image = mean_image.swapaxes(0,1)
-    if save_flag:
+    if save_file != "":
+        base_path = os.path.dirname(save_file)
+        if not os.path.exists(base_path):
+            os.makedirs(base_path)
         with open(save_file, 'wb') as f:
             np.save(f, mean_image)
+            logging.debug("saving mean file to %s" % save_file)
+
     return mean_image
 
 
@@ -376,6 +382,11 @@ class DataSet(object):
 
 
 if __name__ == '__main__':
+
+
+    compute_mean_image()
+
+
     isServer = False
     if not isServer:
         pcProjectpath = '/home/liuzheng/competition/kaggle/distractedDrivers/'
