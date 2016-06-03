@@ -195,12 +195,10 @@ class DataSet(object):
     def reset_index(self):
         self.set_index_in_epoch(0)
 
-    def image_path_list_to_image_pic_list(self, image_path_list, preprocess_func=resize_and_mean):
+    def image_path_list_to_image_pic_list(self, image_path_list):
         image_pic_list = []
         for image_path in image_path_list:
             im = imread(image_path)
-            if preprocess_func is not None:
-                im = preprocess_func(im)
             image_pic_list.append(im)
         return np.array(image_pic_list)
 
