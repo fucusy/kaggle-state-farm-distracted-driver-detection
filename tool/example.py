@@ -14,9 +14,7 @@ import numpy as np
 
 '''=====================================Data resize=================================================='''
 if not os.path.exists(config.Project.train_img_folder_path):
-    dt.resize_image(config.Project.original_training_folder, config.Project.original_testing_folder,
-	            training_save_path=config.Project.train_img_folder_path, testing_save_path=config.Project.test_img_folder_path,
-                 img_size=config.Data.img_size)
+    dt.resize_image()
 
 
 if not os.path.exists(config.Data.mean_image_file_name):

@@ -10,6 +10,7 @@ Created on Tue May 31 20:43:33 2016
 import sys
 sys.path.append('../')
 
+import config
 import numpy as np
 import skimage
 import skimage.io as skio
@@ -91,18 +92,24 @@ def compute_mean_image(training_data_path, testing_data_path, save_flag=True, sa
     Save all resized images to training and testing folders.
     training images with all labels are saved into one folder, the label is the first character of the file names.
 '''
-def resize_image(original_training_data_path, original_testing_data_path, training_save_path, testing_save_path,
-                 img_size=(3, 224, 224)):
+
+
+
+def resize_image(original_training_data_path=config.Project.original_training_folder
+                 , original_testing_data_path=config.Project.original_testing_folder
+                 , training_save_path=config.Project.train_img_folder_path
+                 , testing_save_path=config.Project.test_img_folder_path
+                 , img_size=config.Data.img_size):
     if not os.path.exists(training_save_path):
         os.makedirs(training_save_path)
     if not os.path.exists(testing_save_path):
         os.makedirs(testing_save_path)
-    
+
     if img_size[0] == 1:
         as_grey = True
     else:
         as_grey = False
-    
+
     class_list = ['c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9']
     for c in class_list:
         folder = os.listdir(original_training_data_path + c)
@@ -110,13 +117,12 @@ def resize_image(original_training_data_path, original_testing_data_path, traini
             img = skio.imread( original_training_data_path + c + f, as_grey=as_grey )
             img = sktr.resize(img, output_shape=[img_size[1], img_size[2]])
             skio.imsave(training_save_path + c[1] + '_' + f)
-    
+
     folder = os.listdir(original_testing_data_path)
     for f in folder:
         img = skio.imread( original_testing_data_path + f, as_grey=as_grey )
         img = sktr.resize(img, output_shape=[img_size[1], img_size[2]])
         skio.imsave(training_save_path + f)
-            
 
 
 
