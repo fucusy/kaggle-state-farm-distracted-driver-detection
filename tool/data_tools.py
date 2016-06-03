@@ -53,7 +53,11 @@ def images_swap_axes(images, color_type=3):
 '''
     Computing mean images. Using all training and testing images.
 '''
-def compute_mean_image(training_data_path, testing_data_path, save_flag=True, save_file=''):
+
+def compute_mean_image(training_data_path=config.Project.train_img_folder_path
+                       , testing_data_path=config.Project.test_img_folder_path
+                       , save_file=config.Data.mean_image_file_name
+                       , save_flag=True):
     print('computing mean images')
     folder = os.listdir(training_data_path)
     trainNum = len(folder)

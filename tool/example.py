@@ -18,10 +18,7 @@ if not os.path.exists(config.Project.train_img_folder_path):
 
 
 if not os.path.exists(config.Data.mean_image_file_name):
-    mean_image = dt.compute_mean_image(config.Project.train_img_folder_path,
-								   config.Project.test_img_folder_path,
-								   save_flag=True,
-								   save_file=config.Data.mean_image_file_name)
+    mean_image = dt.compute_mean_image()
 
 
 
