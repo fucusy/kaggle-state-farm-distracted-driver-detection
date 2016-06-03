@@ -7,6 +7,8 @@ Created on Wed Jun  1 10:45:34 2016
 import sys
 sys.path.append('../')
 
+import config
+
 from keras.models import Sequential, model_from_json
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
@@ -187,9 +189,17 @@ class KerasFeatureExtractor(object):
 
 
 class KerasModel(object):
-    def __init__(self,
-                 model_name, data_set, test_batch_size=64, n_iter=50, model_arch_file='',
-                 model_weights_file='', model_save_path='', prediction_save_file=''):
+    def __init__(self, data_set):
+
+        model_name = config.CNN.model_name,
+        test_batch_size = config.CNN.test_batch_size,
+        n_iter = config.CNN.train_iter,
+        model_arch_file = config.CNN.model_arch_file_name,
+        model_weights_file = config.CNN.model_weights_file_name,
+        model_save_path = config.CNN.model_save_path,
+        prediction_save_file = config.CNN.prediction_save_file
+
+
         self._model_name = model_name
         self._data_set = data_set
         # self._data_set._batch_size = batch_size

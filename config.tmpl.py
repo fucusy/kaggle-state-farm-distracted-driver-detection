@@ -1,6 +1,8 @@
 __author__ = 'fucus'
 
-from model.models import RandomForestClassification 
+from model.models import RandomForestClassification
+
+
 class Project:
 
     # required, your project's absolute path, in other way, it's the absolute path for this file
@@ -14,6 +16,11 @@ class Project:
     # required, this path contain imgs to be tested
     test_img_folder_path = "/Users/fucus/Documents/buaa/projects/State_Farm_Distracted_Driver_Detection/data/imgs/test"
 
+    # the original training folder downloaded from kaggle
+    original_training_folder = ""
+
+    # the original test folder downloaded from kaggle
+    original_testing_folder = ""
 
     # not required, a img path for you exercise program
     test_img_example_path = "/Users/fucus/Documents/buaa/projects/State_Farm_Distracted_Driver_Detection/data/imgs/train/c0/img_27327.jpg"

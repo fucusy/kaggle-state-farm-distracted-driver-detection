@@ -46,6 +46,7 @@ def load_test_image_path_list(path):
     result = ["%s/%s" % (path, x) for x in list_path if x.endswith("jpg")]
     return np.array(result)
 
+
 def load_train_image_path_list_and_label(path):
     label_list = []
     result_list = []
@@ -73,9 +74,11 @@ def resize_and_mean(image, size=(224, 224), mean=(103.939, 116.779, 123.68)):
         img_resized[c, :, :] = img_resized[c, :, :] - mean[c]
     return img_resized
 
+
 def load_test_data_set(test_image_path):
     test_image_list = load_test_image_path_list(test_image_path)
     return DataSet(test_image_list)
+
 
 def load_train_data_set(path):
     image_list, image_label = load_train_image_path_list_and_label(path)
@@ -101,9 +104,6 @@ class DataSet(object):
             permut = np.random.permutation(len(images_path_list))
             self._images_path = images_path_list[permut]
             self._images_label = image_label_list[permut]
-
-    
-
     @property
     def image_path_list(self):
         return self._images_path
