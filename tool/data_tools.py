@@ -94,9 +94,9 @@ def compute_mean_image(training_data_path, testing_data_path, save_flag=True, sa
 def resize_image(original_training_data_path, original_testing_data_path, training_save_path, testing_save_path,
                  img_size=(3, 224, 224)):
     if not os.path.exists(training_save_path):
-        os.makedir(training_save_path)
+        os.makedirs(training_save_path)
     if not os.path.exists(testing_save_path):
-        os.makedir(testing_save_path)
+        os.makedirs(testing_save_path)
     
     if img_size[0] == 1:
         as_grey = True
