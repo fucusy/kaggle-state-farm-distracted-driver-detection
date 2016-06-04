@@ -2,6 +2,7 @@ __author__ = 'fucus'
 
 import sys
 sys.path.append('../')
+
 import config
 from keras.models import model_from_yaml
 import os
@@ -111,7 +112,6 @@ def get_image_to_person(file_path=config.Project.driver_img_list_path):
     :param file_path: the driver list .cvs file path
     :return: a image_id to person dictionary, image_id means the name remove suffix like '.jpg'
     """
-
 
     image_id_to_person = {}
     count = 0
