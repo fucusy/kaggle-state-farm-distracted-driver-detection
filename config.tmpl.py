@@ -1,7 +1,6 @@
 __author__ = 'fucus'
 
 from model.models import RandomForestClassification
-import tool.model_inference as mi
 
 class Project:
 
@@ -91,9 +90,6 @@ class CNN:
 
     feature_save_path = '%s/cache' % Project.project_path
 
-
     load_image_to_memory_every_time = 100
-
-    cnn_model = mi.inference(input_shape=Data.img_size, classNum=10, weights_file='')
 
 
