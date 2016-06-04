@@ -1,7 +1,7 @@
 __author__ = 'fucus'
 
 from model.models import RandomForestClassification
-
+import tool.model_inference as mi
 
 class Project:
 
@@ -33,6 +33,25 @@ class Project:
 
     # required, save cache or not
     save_cache = False
+
+class Data:
+
+    img_size = [3, 224, 224]
+
+    mean_image_file_name = '%s/cache/meanImage.npy' % Project.project_path
+
+    image_crop = 'entire'# whether random crop images or not
+
+    color_mode = 'rgb'# 'gray'
+
+    fragment_size = 2048
+
+    batch_size = 32
+
+    class_num = 10
+
+    validation_split = 0.2
+
 
 
 class CNN:
@@ -70,20 +89,6 @@ class CNN:
 
     feature_save_path = '%s/cache' % Project.project_path
 
-class Data:
+    cnn_model = mi.inference(input_shape=Data.img_size, classNum=10, weights_file='')
 
-    img_size = [3, 224, 224]
 
-    mean_image_file_name = '%s/cache/meanImage.npy' % Project.project_path
-
-    image_crop = 'entire'# whether random crop images or not
-
-    color_mode = 'rgb'# 'gray'
-
-    fragment_size = 2048
-
-    batch_size = 32
-
-    class_num = 10
-
-    validation_split = 0.2
