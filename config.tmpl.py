@@ -92,4 +92,4 @@ class CNN:
 
     load_image_to_memory_every_time = 100
 
-
+    load_image_to_memory_every_time_when_test = 1000

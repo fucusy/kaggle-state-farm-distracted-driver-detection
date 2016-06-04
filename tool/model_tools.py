@@ -302,26 +302,34 @@ class KerasModel(object):
 
     def predict_model(self, test_data):
         image_count = 0
-        fragment_size = config.CNN.load_image_to_memory_every_time
+        fragment_size = config.CNN.load_image_to_memory_every_time_when_test
+        if fragment_size > 0:
+            while test_data.have_next():
+                image_count += fragment_size
+                print('%s | --> testing fragment %d / %d'%(self._model_name,
+                                       image_count, test_data.count()))
 
-        while test_data.have_next():
-            image_count += fragment_size
-            print('%s | --> testing fragment %d / %d'%(self._model_name,
-                                   image_count, test_data.count()))
 
-
-            x_test, name_list = test_data.next_fragment(fragment_size, need_label=False)
-            frag_prediction = self._model.predict_proba(x_test, batch_size=self._test_batch_size)
+                x_test, name_list = test_data.next_fragment(fragment_size, need_label=False)
+                frag_prediction = self._model.predict(x_test, batch_size=self._test_batch_size)
+                self.stat_prediction(frag_prediction, name_list)
+            ''' We still call fuse function if only one prediction per image for universality.
+                The self._prediction is a dict that every key (testing image names) has a list of prediction.
+                No matter how many elements the list has, the final prediction is a numpy array for each image after fusing.
+            '''
+        else:
+            x_test, name_list = test_data.load_all_images(need_label=False)
+            frag_prediction = self._model.predict(x_test, batch_size=self._test_batch_size)
             self.stat_prediction(frag_prediction, name_list)
-        ''' We still call fuse function if only one prediction per image for universality.
-            The self._prediction is a dict that every key (testing image names) has a list of prediction.
-            No matter how many elements the list has, the final prediction is a numpy array for each image after fusing.
-        '''
+
+
         self.fuse_prediction()
         self.save_prediction()
 
     ''' Update prediction dict. '''
     def stat_prediction(self, frag_prediction, frag_list):
+        frag_prediction = np.array(frag_prediction)
+        frag_list = np.array(frag_list)
         for i in range(frag_prediction.shape[0]):
             img_name = frag_list[i]
             if img_name in self._prediction.keys():
