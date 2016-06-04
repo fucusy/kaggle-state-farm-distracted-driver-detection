@@ -7,6 +7,7 @@ from tool.data_tools import compute_mean_image
 
 from tool.model_tools import KerasModel
 from tool.keras_tool import load_data
+from model.cnn_model import VGG_16
 
 import logging
 
@@ -31,6 +32,7 @@ if __name__ == '__main__':
 
     train_data, validation_data, test_data = load_data(config.Project.train_img_folder_path, config.Project.test_img_folder_path)
 
-    model = KerasModel(cnn_model=config.CNN.cnn_model)
+    cnn_model = VGG_16(weights_path=config.CNN.keras_train_weight)
+    model = KerasModel(cnn_model=cnn_model)
     model.train_model(train_data, validation_data, save_best=True)
     model.predict_model(test_data)
