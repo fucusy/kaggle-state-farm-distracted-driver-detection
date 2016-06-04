@@ -9,6 +9,7 @@ import logging
 import skimage.io as skio
 import skimage.transform as sktr
 import shutil
+from tool.keras_tool import load_image_path_list
 
 '''
     Save all resized images to training and testing folders.
@@ -24,8 +25,10 @@ def resize_image(original_training_data_path=config.Project.original_training_fo
                  , img_size=config.Data.img_size
                  , force=False):
     if force:
-        shutil.rmtree(training_save_path)
-        shutil.rmtree(testing_save_path)
+        if os.path.exists(training_save_path):
+            shutil.rmtree(training_save_path)
+        if os.path.exists(testing_save_path):
+            shutil.rmtree(testing_save_path)
     if os.path.exists(training_save_path):
         logging.info("resize path exists, no need to resize again, skip this")
         return
@@ -44,17 +47,16 @@ def resize_image(original_training_data_path=config.Project.original_training_fo
 
     for c in class_list:
         class_path = os.path.join(original_training_data_path, c)
-        folder = os.listdir(class_path)
-        for f in folder:
-            file_path = os.path.join(class_path, f)
+        file_paths = load_image_path_list(class_path)
+        for file_path in file_paths:
+            f = os.path.basename(file_path)
             img = skio.imread(file_path , as_grey=as_grey )
             img = sktr.resize(img, output_shape=[img_size[1], img_size[2]])
             save_path = os.path.join(training_save_path, c, f)
             skio.imsave(save_path, img)
 
-    folder = os.listdir(original_testing_data_path)
-    for f in folder:
-        file_path = os.path.join(original_testing_data_path, f)
+    file_paths = load_image_path_list(original_testing_data_path)
+    for file_path in file_paths:
         img = skio.imread(file_path , as_grey=as_grey )
         img = sktr.resize(img, output_shape=[img_size[1], img_size[2]])
 
