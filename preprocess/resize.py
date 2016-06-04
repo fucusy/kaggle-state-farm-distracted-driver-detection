@@ -45,6 +45,7 @@ def resize_image(original_training_data_path=config.Project.original_training_fo
 
     as_grey = (img_size[0] == 1)
 
+    logging.info("resize train image now")
     for c in class_list:
         class_path = os.path.join(original_training_data_path, c)
         file_paths = load_image_path_list(class_path)
@@ -55,11 +56,12 @@ def resize_image(original_training_data_path=config.Project.original_training_fo
             save_path = os.path.join(training_save_path, c, f)
             skio.imsave(save_path, img)
 
+    logging.info("resize test image now")
     file_paths = load_image_path_list(original_testing_data_path)
     for file_path in file_paths:
+        f = os.path.basename(file_path)
         img = skio.imread(file_path , as_grey=as_grey )
         img = sktr.resize(img, output_shape=[img_size[1], img_size[2]])
-
         save_path = os.path.join(testing_save_path, f)
         skio.imsave(save_path, img)
 
@@ -78,4 +80,4 @@ if __name__ == "__main__":
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 
-    resize_image()
+    resize_image(force=True)

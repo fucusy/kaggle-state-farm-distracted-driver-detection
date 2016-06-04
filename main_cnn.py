@@ -25,7 +25,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
     '''=====================================Data resize=================================================='''
 
-    resize_image(force=True)
+    resize_image()
     compute_mean_image()
 
     '''====================================Train and test================================================'''
