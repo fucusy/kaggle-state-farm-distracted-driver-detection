@@ -16,7 +16,7 @@ data_set = load_train_data_set(config.Project.train_img_folder_path)
 predict = []
 
 while data_set.have_next():
-    img_list, img_label, _ = data_set.next_batch(batch_size, need_label=True)
+    img_list, img_label, _ = data_set.next_fragment(batch_size, need_label=True)
     img_label_cate = to_categorical(img_label, 10)
     loss_and_metrics = model.evaluate(img_list, img_label_cate, batch_size=batch_size)
     print(loss_and_metrics)

@@ -18,7 +18,7 @@ test_data_set = load_test_data_set(config.Project.test_img_folder_path)
 predict = []
 
 while test_data_set.have_next():
-    img_list, _ = test_data_set.next_batch(128)
+    img_list, _ = test_data_set.next_fragment(128)
     result = model.predict(img_list)
     predict += list(result)
 predict = np.array(predict)
