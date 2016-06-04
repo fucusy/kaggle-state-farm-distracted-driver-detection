@@ -60,19 +60,21 @@ class CNN:
 
     test_batch_size = 64
 
+    batch_size = 64
+
     '''path/to/save/model/'''
-    model_save_path = '/home/liuzheng/competition/kaggle/distractedDrivers/'
+    model_save_path = '%s/cache' % Project.project_path
 
     '''path/to/prediction/and/file/name/'''
-    prediction_save_file = '/home/liuzheng/competition/kaggle/distractedDrivers/prediction.csv'
+    prediction_save_file = '%s/result/prediction.csv' % Project.project_path
 
-    feature_save_path = '/home/liuzheng/competition/kaggle/distractedDrivers/'
+    feature_save_path = '%s/cache' % Project.project_path
 
 class Data:
 
     img_size = [3, 224, 224]
 
-    mean_image_file_name = '/home/liuzheng/competition/kaggle/distractedDrivers/imgs/meanImage.npy'
+    mean_image_file_name = '%s/cache/meanImage.npy' % Project.project_path
 
     image_crop = 'entire'# whether random crop images or not
 
