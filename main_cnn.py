@@ -1,7 +1,7 @@
 import sys
-sys.path.append('../')
-
 import config
+
+
 from preprocess.resize import resize_image
 from tool.data_tools import compute_mean_image
 
