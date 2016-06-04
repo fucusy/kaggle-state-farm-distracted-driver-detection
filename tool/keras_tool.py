@@ -74,7 +74,19 @@ def resize_and_mean(image, size=(224, 224), mean=(103.939, 116.779, 123.68)):
     for c in range(3):
         img_resized[c, :, :] = img_resized[c, :, :] - mean[c]
     return img_resized
+def transpose_and_mean(image, mean=(103.939, 116.779, 123.68)):
+    """
 
+    :param image:
+    :param mean:
+    :return:
+    """
+
+    img = image.transpose((2, 0, 1))
+
+    for c in range(3):
+        img[c, :, :] = img[c, :, :] - mean[c]
+    return img
 
 def load_test_data_set(test_image_path):
     test_image_list = load_image_path_list(test_image_path)
@@ -199,10 +211,12 @@ class DataSet(object):
     def reset_index(self):
         self.set_index_in_epoch(0)
 
-    def image_path_list_to_image_pic_list(self, image_path_list):
+    def image_path_list_to_image_pic_list(self, image_path_list, callback=transpose_and_mean):
         image_pic_list = []
         for image_path in image_path_list:
             im = imread(image_path)
+            if callback is not None:
+                im = callback(im)
             image_pic_list.append(im)
         return np.array(image_pic_list)
 
