@@ -21,7 +21,7 @@ def save_model(model, weight_path, structure_path=''):
     """
     model_string = model.to_yaml()
     if structure_path == '':
-        structure_path = weight_path + ".yaml" 
+        structure_path = weight_path + ".yaml"
     open(structure_path, 'w').write(model_string)
     model.save_weights(weight_path, overwrite=True)
 
@@ -162,7 +162,7 @@ class DataSet(object):
         """
         if type(images_path_list) is list:
             images_path_list = np.array(images_path_list)
-            image_label_list = np.array(image_label_list)
+            image_label_list = to_categorical(np.array(image_label_list), 10)
 
         self._num_examples = images_path_list.shape[0]
         self._images_path = images_path_list
@@ -182,6 +182,7 @@ class DataSet(object):
     def image_label_list(self):
         return self._images_label
 
+
     @property
     def num_examples(self):
         return self._num_examples
@@ -189,6 +190,9 @@ class DataSet(object):
     @property
     def epochs_completed(self):
         return self._epochs_completed
+
+    def count(self):
+        return self._num_examples
 
     def set_index_in_epoch(self, index):
         self._index_in_epoch = index
@@ -211,9 +215,9 @@ class DataSet(object):
         self.set_index_in_epoch(index_in_epoch)
         return result
 
-    def next_fragment(self, batch_size, need_label=False):
+    def next_fragment(self, fragment_size, need_label=False):
         start = self._index_in_epoch
-        end = min(self._index_in_epoch + batch_size, self._num_examples)
+        end = min(self._index_in_epoch + fragment_size, self._num_examples)
         self._index_in_epoch = end
         image_list = self.image_path_list_to_image_pic_list(self._images_path[start:end])
         image_path = [os.path.basename(x) for x in self._images_path[start:end]]
