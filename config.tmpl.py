@@ -34,6 +34,9 @@ class Project:
     # required, save cache or not
     save_cache = False
 
+
+    vgg_weight_file_path = "/home/chenqiang/kaggle_driver_data/vgg16_weights.h5"
+
 class Data:
 
     img_size = [3, 224, 224]
@@ -61,7 +64,6 @@ class CNN:
 
     # keras structure files
     keras_structure_files = ""
-    vgg_weight_file_path = "/home/chenqiang/kaggle_driver_data/vgg16_weights.h5"
 
     fine_tuning_vgg_weight_file_path = ""
 

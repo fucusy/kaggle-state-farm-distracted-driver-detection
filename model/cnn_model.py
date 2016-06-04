@@ -4,10 +4,12 @@ Created on Sat May 14 09:58:44 2016
     
 @author: WuPeng
 """
+
 import sys
 # add project root to python lib search path
 sys.path.append("../")
-import config
+
+from config import Project as p
 
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Flatten
@@ -19,6 +21,8 @@ from keras.optimizers import SGD
 import logging
 import h5py
 import os
+from tool.keras_tool import load_model
+
 
 def VGG_16_add_layer(lr=1e-3, weights_path=None):
 
@@ -80,7 +84,7 @@ def VGG_16_add_layer(lr=1e-3, weights_path=None):
 
         # load the weights
         
-        f = h5py.File(config.CNN.vgg_weight_file_path)
+        f = h5py.File(p.vgg_weight_file_path)
         
         # we don't look at the last (fully-connected) layers in the savefile
         for k in range(f.attrs['nb_layers'] - 1):
@@ -152,8 +156,7 @@ def VGG_16(lr=1e-3, weights_path=None):
         model.add(Dense(10, activation='softmax'))
 
         # load the weights
-        
-        f = h5py.File(config.CNN.vgg_weight_file_path)
+        f = h5py.File(p.vgg_weight_file_path)
         
         # we don't look at the last (fully-connected) layers in the savefile
         for k in range(f.attrs['nb_layers'] - 1):
