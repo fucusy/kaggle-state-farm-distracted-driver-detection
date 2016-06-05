@@ -5,7 +5,9 @@ import logging
 from feature.hog import get_hog
 from feature.lbp import get_lbp_his
 from config import Project
+import config
 import pickle
+from tool.keras_tool import load_train_validation_data_set, load_test_data_set
 
 
 cache_path = "%s/cache" % Project.project_path
@@ -41,32 +43,19 @@ def save_cache(hog_feature_cache):
 
 def load_train_feature(img_data_path, hog_feature_cache, lbp_feature_cache, limit=-1):
 
-    driver_type_num_check = {"c0": 2489, "c1": 2267, "c2": 2317, "c3": 2346, "c4": 2326
-                            , "c5": 2312, "c6": 2325, "c7": 2002, "c8": 1911,"c9": 2129}
     x_feature = []
     y = []
     relevant_image_path_list = []
+    train_data, _ = load_train_validation_data_set(config.Project.train_img_folder_path)
 
-    logging.info("start to check the train image")
-    driver_type_list = sorted(driver_type_num_check.keys())
-    for driver_type in driver_type_list:
-        images = sorted([x for x in os.listdir("%s/%s" % (img_data_path, driver_type)) if x.endswith(".jpg")])
-        if len(images) != driver_type_num_check[driver_type]:
-            logging.warning("the type of %s train images number:%d is not equal to %d, it's incorrect"
-                            % (driver_type, len(images), driver_type_num_check[driver_type]))
-        else:
-            logging.info("the type of %s train images number:%d is equal to %d, it's correct"
-                            % (driver_type, len(images), driver_type_num_check[driver_type]))
-        for img in images:
-            img_path = "%s/%s" % (driver_type, img)
-            relevant_image_path_list.append(img_path)
-            y.append(driver_type)
 
-    logging.info("check the train image end")
+    image_path_list = train_data.image_path_list
+    image_label_list = train_data.image_label_list
 
     logging.info("start to load feature from train image")
     count = 0
-    for relevant_image_path in relevant_image_path_list:
+    for i in range(len(image_path_list)):
+        relevant_image_path = image_path_list[i].split("/")[-2:]
         if count >= limit > 0:
             break
         if count % 1000 == 0:
@@ -76,10 +65,13 @@ def load_train_feature(img_data_path, hog_feature_cache, lbp_feature_cache, limi
         x_feature.append(extract_feature(full_path, hog_feature_cache, lbp_feature_cache))
     logging.info("load feature from train image end")
 
-    return relevant_image_path_list[:count], x_feature[:count], y[:count]
+    return image_path_list[:count], x_feature[:count], image_label_list[:count]
 
 
 def load_test_feature(img_data_path, hog_feature_cache, lbp_feature_cache, limit=-1):
+
+
+
     test_img_num = 79726
     x_feature = []
     relevant_image_path_list = sorted([x for x in os.listdir("%s" % img_data_path) if x.endswith(".jpg")])
@@ -90,6 +82,11 @@ def load_test_feature(img_data_path, hog_feature_cache, lbp_feature_cache, limit
         logging.info("the test images number:%d is equal to %d, it's correct"
                         % (len(relevant_image_path_list), test_img_num))
     logging.info("start to load feature from test image")
+
+
+    test_data = load_test_data_set(config.Project.test_img_folder_path)
+    relevant_image_path_list = [os.path.basename(x) for x in test_data.image_path_list]
+
     count = 0
     for img in relevant_image_path_list:
         if count >= limit > 0:
