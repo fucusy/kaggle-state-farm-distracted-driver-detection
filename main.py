@@ -33,11 +33,11 @@ if __name__ == '__main__':
     start_time = datetime.datetime.now()
     logging.info('start program---------------------')
     logging.info("loading feature cache now")
-    hog_feature_cache = load_cache()
+    hog_feature_cache, lbp_feature_cache = load_cache()
     logging.info("load feature cache end")
 
     logging.info("load train data feature now")
-    train_img_relevant_paths, train_x_feature, train_y = load_train_feature(Project.train_img_folder_path, hog_feature_cache, train_num)
+    train_img_relevant_paths, train_x_feature, train_y = load_train_feature(Project.train_img_folder_path, hog_feature_cache, lbp_feature_cache,train_num)
     logging.info("extract train data feature done")
 
     logging.info("start to train the model")
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     logging.info("train the model done")
 
     logging.info("load test feature now")
-    test_img_names, test_x_feature = load_test_feature(Project.test_img_folder_path, hog_feature_cache, test_num)
+    test_img_names, test_x_feature = load_test_feature(Project.test_img_folder_path, hog_feature_cache, lbp_feature_cache, test_num)
     logging.info("load test feature done")
 
     if Project.save_cache:
