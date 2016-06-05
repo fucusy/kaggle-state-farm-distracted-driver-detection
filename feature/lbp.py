@@ -1,10 +1,13 @@
 __author__ = 'fucus'
 
+import sys
+sys.path.append('../')
+from config import Project as p
+
 from skimage import color, exposure
 from skimage.feature import hog
 import matplotlib.pyplot as plt
 import skimage.io
-from config import Project as p
 from skimage.feature import local_binary_pattern
 import numpy as np
 from skimage import data
@@ -38,25 +41,7 @@ def get_lbp_his(img):
 
 if __name__ == '__main__':
     img = skimage.io.imread(p.test_img_example_path)
-    lbp = get_lbp(img)
+    lbp = get_lbp_his(img)
+    print(lbp)
 
 
-
-    img2 = skimage.io.imread(p.test_img_folder_path_2)
-    lbp2 = get_lbp(img2)
-
-    # plot histograms of LBP of textures
-    fig, ((ax1, ax3), (ax2, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(9, 6))
-    plt.gray()
-
-    ax1.imshow(img)
-    ax1.axis('off')
-
-    hist(ax2, lbp)
-
-    ax3.imshow(img2)
-    ax3.axis('off')
-    hist(ax4, lbp2)
-
-
-    plt.show()

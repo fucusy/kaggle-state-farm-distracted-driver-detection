@@ -120,7 +120,7 @@ def extract_feature(img_path, hog_feature_cache, lbp_feature_cache):
         lbp_feature = get_lbp_his(img)
         lbp_feature_cache[img_name] = lbp_feature
 
-    feature += hog_feature
-    feature += lbp_feature
+    feature += list(hog_feature)
+    feature += list(lbp_feature)
 
     return feature
