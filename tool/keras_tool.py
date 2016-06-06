@@ -133,7 +133,13 @@ def get_image_to_person(file_path=config.Project.driver_img_list_path):
     return image_id_to_person
 
 
-def load_train_validation_data_set(path, validation_split=0.2):
+def load_train_validation_data_set(path, validation_split=0.2, to_category=True):
+    """
+    param: validation_spilt, how many percent driver to be vlidation
+    param: to_category, if it's true, the result image label will be a 10 length vector
+
+    return a tuple of dataset contain train data set and validation data set
+    """
     image_list, image_label = load_train_image_path_list_and_label(path)
     img_to_person = get_image_to_person()
     driver_list = sorted(set(img_to_person.values()))
@@ -159,13 +165,13 @@ def load_train_validation_data_set(path, validation_split=0.2):
             validation_image_list.append(image_list[i])
             validation_image_label.append(image_label[i])
 
-    return DataSet(train_image_list, train_image_label), DataSet(validation_image_list, validation_image_label)
+    return DataSet(train_image_list, train_image_label, to_category), DataSet(validation_image_list, validation_image_label, to_category)
 
 
 
 class DataSet(object):
     def __init__(self,
-               images_path_list, image_label_list=None):
+               images_path_list, image_label_list=None, to_category=True):
         """
 
         :param images_path_list: numpy.array or list
@@ -174,7 +180,12 @@ class DataSet(object):
         """
         if type(images_path_list) is list:
             images_path_list = np.array(images_path_list)
-            image_label_list = to_categorical(np.array(image_label_list), 10)
+
+        if image_label_list is not None:
+            if to_category:
+                image_label_list = to_categorical(np.array(image_label_list), 10)
+            else:
+                image_label_list = np.array(image_label_list)
 
         self._num_examples = images_path_list.shape[0]
         self._images_path = images_path_list

@@ -13,14 +13,15 @@ class RandomForestClassification(Model):
 
     def __init__(self):
         Model.__init__(self)
-        self.model = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=2016, verbose=1, max_depth=1000
-                                            , max_features=4000)
+        self.model = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=2016, verbose=1, max_depth=1000, max_features=400)
 
     def fit(self, x_train, y_train, x_test=None):
+        param_grid = {'n_estimators': [200, 300, 500], 'max_depth': [100, 200, 400, 500], 'max_features': [200, 400, 800]}
+
+        self.model = self.grid_search_fit_(self.model, param_grid, x_train, y_train)
         train_pred = cross_val_predict(self.model, x_train, y_train, cv=2)
         report = classification_report(y_train, train_pred)
         logging.info("the cross validation report:\n %s" % report)
-        self.model.fit(x_train, y_train)
 
     def predict(self, x_test):
         return self.model.predict(x_test)
