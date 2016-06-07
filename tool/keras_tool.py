@@ -49,12 +49,12 @@ def load_image_path_list(path):
     return np.array(result)
 
 
-def load_train_image_path_list_and_label(path):
+def load_train_image_path_list_and_label(train_path):
     label_list = []
     result_list = []
     for x in range(10):
         sub_folder = 'c%d' % x
-        path = "%s/%s" % (config.Project.train_img_folder_path, sub_folder)
+        path = "%s/%s" % (train_path, sub_folder)
         result = load_image_path_list(path)
         label_list += [x] * len(result)
         result_list += list(result)
@@ -140,12 +140,26 @@ def load_train_validation_data_set(path, validation_split=0.2, to_category=True)
 
     return a tuple of dataset contain train data set and validation data set
     """
-    image_list, image_label = load_train_image_path_list_and_label(path)
+    if type(path) is list:
+        logging.debug("train validation data from multi-directory %s" % ",".join(path))
+        image_list = []
+        image_label = []
+        for p in path:
+            logging.debug("loading train validation from %s now" % p)
+            image_list_tmp, image_label_tmp = load_train_image_path_list_and_label(p)
+            image_list += list(image_list_tmp)
+            image_label += list(image_label_tmp)
+
+    else:
+        logging.debug("train validation data from %s" % path)
+        image_list, image_label = load_train_image_path_list_and_label(path)
+
     img_to_person = get_image_to_person()
     driver_list = sorted(set(img_to_person.values()))
     train_driver_index_end = int(len(driver_list) * (1-validation_split))
     train_driver_list = driver_list[:train_driver_index_end]
     validation_driver_list = driver_list[train_driver_index_end:]
+
     logging.info("load train data from driver %s" % ",".join(train_driver_list))
     logging.info("load validation data from driver %s" % ",".join(validation_driver_list))
 

@@ -22,7 +22,8 @@ def resize_image(img, img_size):
 
 
 def resize_train_image(from_path, img_size, force=False):
-    to_path = "%s_%s_" % (from_path, "_".join(img_size))
+    img_size_str_list = [str(x) for x in img_size]
+    to_path = "%s_%s" % (from_path, "_".join(img_size_str_list))
     args = {"img_size": img_size}
     loop_process_train_image(from_path, to_path, resize_image, args, force)
 
@@ -35,12 +36,14 @@ def resize_image_main():
     train_img_path_list = ["%s_shift_down_0.2" % train_base_path,
                            "%s_shift_up_0.2" % train_base_path,
                            "%s_shift_left_0.2" % train_base_path,
-                           "%s_shift_right_0.2" % train_base_path, ]
+                           "%s_shift_right_0.2" % train_base_path,
+                           train_base_path,
+                           ]
     for path in train_img_path_list:
         resize_train_image(path, img_size, force)
 
 if __name__ == "__main__":
-    level = logging.INFO
+    level = logging.DEBUG
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
     resize_image_main()
