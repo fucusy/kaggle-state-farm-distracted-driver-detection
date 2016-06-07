@@ -89,20 +89,20 @@ def transpose_and_mean(image, mean=(103.939, 116.779, 123.68)):
         img[c, :, :] = img[c, :, :] - mean[c]
     return img
 
-def load_test_data_set(test_image_path):
+def load_test_data_set(test_image_path, for_cnn=True):
     test_image_list = load_image_path_list(test_image_path)
-    return DataSet(test_image_list)
+    return DataSet(test_image_list, for_cnn=for_cnn)
 
 
-def load_data(train_folder, test_folder):
+def load_data(train_folder, test_folder, for_cnn=True):
     """
 
     :param train_folder:
     :param test_folder:
     :return: three DataSet structure include train data, validation data, test data
     """
-    test_data = load_test_data_set(test_folder)
-    train_data, validation_data = load_train_validation_data_set(train_folder)
+    test_data = load_test_data_set(test_folder, for_cnn=for_cnn)
+    train_data, validation_data = load_train_validation_data_set(train_folder, for_cnn=for_cnn)
 
     return train_data, validation_data, test_data
 
@@ -133,10 +133,11 @@ def get_image_to_person(file_path=config.Project.driver_img_list_path):
     return image_id_to_person
 
 
-def load_train_validation_data_set(path, validation_split=0.2, to_category=True):
+def load_train_validation_data_set(path, validation_split=0.2, to_category=True, for_cnn=True):
     """
     param: validation_spilt, how many percent driver to be vlidation
     param: to_category, if it's true, the result image label will be a 10 length vector
+    param: for_cnn, if it's true, the returned DataSet will do transpose, and sub mean RBG value, else returned DataSet do not
 
     return a tuple of dataset contain train data set and validation data set
     """
@@ -145,7 +146,6 @@ def load_train_validation_data_set(path, validation_split=0.2, to_category=True)
         image_list = []
         image_label = []
         for p in path:
-            logging.debug("loading train validation from %s now" % p)
             image_list_tmp, image_label_tmp = load_train_image_path_list_and_label(p)
             image_list += list(image_list_tmp)
             image_label += list(image_label_tmp)
@@ -179,13 +179,13 @@ def load_train_validation_data_set(path, validation_split=0.2, to_category=True)
             validation_image_list.append(image_list[i])
             validation_image_label.append(image_label[i])
 
-    return DataSet(train_image_list, train_image_label, to_category), DataSet(validation_image_list, validation_image_label, to_category)
+    return DataSet(train_image_list, train_image_label, to_category, for_cnn=for_cnn), DataSet(validation_image_list, validation_image_label, to_category, for_cnn=for_cnn)
 
 
 
 class DataSet(object):
     def __init__(self,
-               images_path_list, image_label_list=None, to_category=True):
+               images_path_list, image_label_list=None, to_category=True, for_cnn=True):
         """
 
         :param images_path_list: numpy.array or list
@@ -205,6 +205,7 @@ class DataSet(object):
         self._images_path = images_path_list
         self._epochs_completed = 0
         self._index_in_epoch = 0
+        self._for_cnn = for_cnn
         if image_label_list is not None:
             random = 2016
             np.random.seed(random)
@@ -236,12 +237,12 @@ class DataSet(object):
     def reset_index(self):
         self.set_index_in_epoch(0)
 
-    def image_path_list_to_image_pic_list(self, image_path_list, callback=transpose_and_mean):
+    def image_path_list_to_image_pic_list(self, image_path_list):
         image_pic_list = []
         for image_path in image_path_list:
             im = imread(image_path)
-            if callback is not None:
-                im = callback(im)
+            if self._for_cnn:
+                im = transpose_and_mean(im)
             image_pic_list.append(im)
         return np.array(image_pic_list)
 

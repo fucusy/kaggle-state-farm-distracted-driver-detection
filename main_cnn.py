@@ -26,6 +26,9 @@ if __name__ == '__main__':
 
     train_data, validation_data, test_data = load_data(config.Project.train_img_folder_path, config.Project.test_img_folder_path)
 
+    logging.info("train data image count %s" % train_data.count())
+    logging.info("validation data image count %s" % validation_data.count())
+
     cnn_model = VGG_16_add_layer(weights_path=config.CNN.keras_train_weight)
     model = KerasModel(cnn_model=cnn_model)
     model.train_model(train_data, validation_data, save_best=True)
