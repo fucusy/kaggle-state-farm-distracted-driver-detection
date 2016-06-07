@@ -35,37 +35,54 @@ def load_cache():
 
     return hog_feature_cache, lbp_feature_cache
 
-def save_cache(hog_feature_cache):
+def save_cache(hog_feature_cache, lbp_feature_cache):
     hog_feature_file = open(hog_feature_cache_file_path, "wb")
     pickle.dump(hog_feature_cache, hog_feature_file)
     hog_feature_file.close()
 
 
-def load_train_feature(img_data_path, hog_feature_cache, lbp_feature_cache, limit=-1):
-
-    x_feature = []
-    y = []
-    relevant_image_path_list = []
-    train_data, _ = load_train_validation_data_set(config.Project.train_img_folder_path)
+    lbp_feature_file = open(lbp_feature_cache_file_path, "wb")
+    pickle.dump(lbp_feature_cache, lbp_feature_file)
+    lbp_feature_file.close()
 
 
-    image_path_list = train_data.image_path_list
-    image_label_list = train_data.image_label_list
-
-    logging.info("start to load feature from train image")
+def image_path_to_feature(image_path_list, hog_cache, lbp_cache):
     count = 0
-    for i in range(len(image_path_list)):
-        relevant_image_path = image_path_list[i].split("/")[-2:]
-        if count >= limit > 0:
-            break
+    features = []
+    for path in image_path_list:
         if count % 1000 == 0:
             logging.info("extract %s th image feature now" % count)
         count += 1
-        full_path = "%s/%s" % (img_data_path, relevant_image_path)
-        x_feature.append(extract_feature(full_path, hog_feature_cache, lbp_feature_cache))
-    logging.info("load feature from train image end")
+        features.append(extract_feature(path, hog_cache, lbp_cache))
+    return features
 
-    return image_path_list[:count], x_feature[:count], image_label_list[:count]
+
+def load_train_validation_feature(img_data_path, hog_cache, lbp_cache, limit=-1):
+
+    train_x = []
+    train_y = []
+
+    validation_x = []
+    validation_y = []
+
+    train_data, validation_data = load_train_validation_data_set(config.Project.train_img_folder_path, to_category=False)
+
+    train_path_list = train_data.image_path_list
+    train_label_list = train_data.image_label_list
+
+    validation_path_list = validation_data.image_path_list
+    validation_label_list = validation_data.image_label_list
+
+    if limit <= 0:
+        limit = len(train_path_list)
+
+    train_x = image_path_to_feature(train_path_list[:limit], hog_cache, lbp_cache)
+    train_y = train_label_list[:limit]
+
+    validation_x = image_path_to_feature(validation_path_list, hog_cache, lbp_cache)
+    validation_y = validation_label_list
+
+    return train_x, train_y, validation_x, validation_y
 
 
 def load_test_feature(img_data_path, hog_feature_cache, lbp_feature_cache, limit=-1):

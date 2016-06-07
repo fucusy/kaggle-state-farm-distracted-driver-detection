@@ -5,30 +5,25 @@ import logging
 import sys
 import datetime
 from config import Project
-from feature.utility import load_train_feature
+from feature.utility import load_train_validation_feature
 from feature.utility import load_test_feature
 from tool.file import generate_result_file
 from feature.utility import load_cache
 from feature.utility import save_cache
+from sklearn.metrics import classification_report
+from sklearn.metrics import log_loss
 
 
 hog_feature_cache = {}
+lbp_feature_cache = {}
 
 if __name__ == '__main__':
-    LEVELS = {'debug': logging.DEBUG,
-              'info': logging.INFO,
-              'warning': logging.WARNING,
-              'error': logging.ERROR,
-              'critical': logging.CRITICAL}
-    level = logging.INFO
-    if len(sys.argv) >= 2:
-        level_name = sys.argv[1]
-        level = LEVELS.get(level_name, logging.INFO)
+    level = logging.DEBUG
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 
     train_num = -1
-    test_num = -1
+    test_num = 100
 
     start_time = datetime.datetime.now()
     logging.info('start program---------------------')
@@ -37,11 +32,16 @@ if __name__ == '__main__':
     logging.info("load feature cache end")
 
     logging.info("load train data feature now")
-    train_img_relevant_paths, train_x_feature, train_y = load_train_feature(Project.train_img_folder_path, hog_feature_cache, lbp_feature_cache,train_num)
+    train_x_feature, train_y, validation_x, validation_y = load_train_validation_feature(Project.train_img_folder_path, hog_feature_cache, lbp_feature_cache,train_num)
     logging.info("extract train data feature done")
 
     logging.info("start to train the model")
+
+    logging.debug("len of train_x_feature = %d" % len(train_x_feature))
+
+    logging.debug("len of train_y = %d" % len(train_y))
     Project.predict_model.fit(x_train=train_x_feature, y_train=train_y)
+
     logging.info("train the model done")
 
     logging.info("load test feature now")
@@ -50,19 +50,32 @@ if __name__ == '__main__':
 
     if Project.save_cache:
         logging.info("saving feature cache now")
-        save_cache(hog_feature_cache)
+        save_cache(hog_feature_cache, lbp_feature_cache)
         logging.info("save feature cache end")
     else:
         logging.info("skip saving the feature cache")
 
     del hog_feature_cache
+    del lbp_feature_cache
+    
+    logging.info("start to do validation")
+
+    validation_result = Project.predict_model.predict(validation_x) 
+    report = classification_report(validation_result, validation_y)
+    logging.info("the validation report:\n %s" % report)
+
+    validation_pro = Project.predict_model.predict_proba(validation_x) 
+    logloss_val =  log_loss(validation_y, validation_pro)
+
+    logging.info("validation logloss is %.3f" % logloss_val)
+    logging.info("done validation")
 
     logging.info("start predict test data")
     predict_result = Project.predict_model.predict_proba(test_x_feature)
     logging.info("predict test data done")
 
     logging.info("start to generate the final file used to submit")
-    generate_result_file(test_img_names[:len(predict_result)], predict_result, Project.predict_model.model.classes_)
+    generate_result_file(test_img_names[:len(predict_result)], predict_result)
     logging.info("generated the final file used to submit")
 
     end_time = datetime.datetime.now()
