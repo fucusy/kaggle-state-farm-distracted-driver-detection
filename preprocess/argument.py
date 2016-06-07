@@ -66,16 +66,16 @@ def shift_down(img, down=10.0):
     return shift_up(img, -down)
 
 
-def argument_image(from_path, to_path, method, args, force=False):
+def loop_process_train_image(from_path, to_path, method, args, force=False):
     if force:
         if os.path.exists(to_path):
             shutil.rmtree(to_path)
     if os.path.exists(to_path):
-        logging.info("resize path exists, no need to resize again, skip this")
+        logging.info("save path exists, no need to process again, skip this")
         return
 
     class_list = ['c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9']
-    logging.info("doing argument now")
+    logging.info("doing process now, saving  result to %s" % os.path.basename(to_path))
 
     if not os.path.exists(to_path):
         for c in class_list:
@@ -84,7 +84,8 @@ def argument_image(from_path, to_path, method, args, force=False):
     total = 0
     for c in class_list:
         class_path = os.path.join(from_path, c)
-        total += len(class_path)
+        file_paths = load_image_path_list(class_path)
+        total += len(file_paths)
 
     count = 0
     for c in class_list:
@@ -100,22 +101,23 @@ def argument_image(from_path, to_path, method, args, force=False):
             img = method(**args)
             save_path = os.path.join(to_path, c, f)
             skio.imsave(save_path, img)
-    logging.info("argument done")
+    logging.info("process done saving data to %s" % os.path.basename(to_path))
+
 
 
 def argument_main():
     from_path = config.Project.original_training_folder
     to_path = "%s_shift_left_0.2" % from_path
-    argument_image(from_path, to_path, shift_left, {"left": 0.2})
+    loop_process_train_image(from_path, to_path, shift_left, {"left": 0.2})
 
     to_path = "%s_shift_right_0.2" % from_path
-    argument_image(from_path, to_path, shift_right, {"right": 0.2})
+    loop_process_train_image(from_path, to_path, shift_right, {"right": 0.2})
 
     to_path = "%s_shift_up_0.2" % from_path
-    argument_image(from_path, to_path, shift_up, {"up": 0.2})
+    loop_process_train_image(from_path, to_path, shift_up, {"up": 0.2})
 
     to_path = "%s_shift_down_0.2" % from_path
-    argument_image(from_path, to_path, shift_down, {"down": 0.2})
+    loop_process_train_image(from_path, to_path, shift_down, {"down": 0.2})
 
 
 if __name__ == '__main__':
