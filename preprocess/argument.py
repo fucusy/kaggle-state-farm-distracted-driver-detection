@@ -81,11 +81,19 @@ def argument_image(from_path, to_path, method, args, force=False):
         for c in class_list:
             class_path = os.path.join(to_path, c)
             os.makedirs(class_path)
+    total = 0
+    for c in class_list:
+        class_path = os.path.join(from_path, c)
+        total += len(class_path)
 
+    count = 0
     for c in class_list:
         class_path = os.path.join(from_path, c)
         file_paths = load_image_path_list(class_path)
         for file_path in file_paths:
+            count += 1
+            if count % 1000 == 0:
+                logging.debug("process %d/%d %.3f image" % (count, total, count * 1.0 / total))
             f = os.path.basename(file_path)
             img = skio.imread(file_path)
             args["img"] = img
@@ -100,10 +108,22 @@ def argument_main():
     to_path = "%s_shift_left_0.2" % from_path
     argument_image(from_path, to_path, shift_left, {"left": 0.2})
 
+    to_path = "%s_shift_right_0.2" % from_path
+    argument_image(from_path, to_path, shift_right, {"right": 0.2})
+
+    to_path = "%s_shift_up_0.2" % from_path
+    argument_image(from_path, to_path, shift_up, {"up": 0.2})
+
+    to_path = "%s_shift_down_0.2" % from_path
+    argument_image(from_path, to_path, shift_down, {"down": 0.2})
+
 
 if __name__ == '__main__':
+    level = logging.DEBUG
+    FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
+    logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
+
     driver = imread(config.Project.test_img_example_path)    
-    
     driver_shift_left = shift_left(driver, 0.2)
     driver_shift_right = shift_right(driver, 0.2)
 
@@ -115,7 +135,4 @@ if __name__ == '__main__':
     imsave("driver_shift_right.jpg", driver_shift_right)
     imsave("driver_shift_up.jpg", driver_shift_up)
     imsave("driver_shift_down.jpg", driver_shift_down)
-
-
-
-
+    argument_main()
