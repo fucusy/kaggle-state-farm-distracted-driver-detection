@@ -8,7 +8,8 @@ from tool.data_tools import compute_mean_image
 
 from tool.model_tools import KerasModel
 from tool.keras_tool import load_data
-from model.cnn_model import VGG_16, VGG_16_add_layer
+import model.cnn_model as model_factory
+
 
 import logging
 
@@ -18,9 +19,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
     '''=====================================Data resize=================================================='''
 
-    argument_main()
-    resize_image_main()
-    compute_mean_image()
+    # argument_main()
+    # resize_image_main()
 
     '''====================================Train and test================================================'''
 
@@ -29,7 +29,8 @@ if __name__ == '__main__':
     logging.info("train data image count %s" % train_data.count())
     logging.info("validation data image count %s" % validation_data.count())
 
-    cnn_model = VGG_16_add_layer(weights_path=config.CNN.keras_train_weight)
+    cnn_model = getattr(model_factory, config.CNN.model_name)(weights_path=config.CNN.keras_train_weight)
+
     model = KerasModel(cnn_model=cnn_model)
     model.train_model(train_data, validation_data, save_best=True)
     model.predict_model(test_data)
