@@ -65,6 +65,35 @@ def shift_up(img, up=10.0):
 def shift_down(img, down=10.0):
     return shift_up(img, -down)
 
+def loop_process_test_image(from_path, to_path, method, args, force=False):
+    if force:
+        if os.path.exists(to_path):
+            shutil.rmtree(to_path)
+    if os.path.exists(to_path):
+        logging.info("save path exists, no need to process again, skip this")
+        return
+    else:
+        os.makedirs(to_path)
+
+    logging.info("doing process now, saving  result to %s" % os.path.basename(to_path))
+
+    total = 0
+    file_paths = load_image_path_list(from_path)
+    total += len(file_paths)
+
+    count = 0
+    file_paths = load_image_path_list(from_path)
+    for file_path in file_paths:
+        count += 1
+        if count % 1000 == 0:
+            logging.debug("process %d/%d %.3f image" % (count, total, count * 1.0 / total))
+        f = os.path.basename(file_path)
+        img = skio.imread(file_path)
+        args["img"] = img
+        img = method(**args)
+        save_path = os.path.join(to_path, f)
+        skio.imsave(save_path, img)
+    logging.info("process done saving data to %s" % os.path.basename(to_path))
 
 def loop_process_train_image(from_path, to_path, method, args, force=False):
     if force:
