@@ -234,7 +234,6 @@ class KerasModel(object):
         fragment_size = config.CNN.load_image_to_memory_every_time
         if fragment_size > 0:
             logger.info("can not load data into memory at once, it will load %d images every time" % fragment_size)
-
             min_loss = np.inf
             max_acc = 0.
 
@@ -246,10 +245,14 @@ class KerasModel(object):
 
                 # set index to zero, prepare for have_next function
                 train_data.reset_index()
+                have_print_data_shape = False
 
                 while train_data.have_next():
                     x_train, y_train, _ = train_data.next_fragment(fragment_size,need_label=True)
                     image_count += len(x_train)
+                    if not have_print_data_shape:
+                        print x_train[0].shape
+                        have_print_data_shape = not have_print_data_shape
                     logging.info('%s | iter %03d --> training progress  %d / %d'
                                    % (self._model_name, it, image_count, train_data.count()))
 
