@@ -183,7 +183,6 @@ def load_train_validation_data_set(path, validation_split=0.2, to_category=True,
 
 
 class DataSet(object):
-    mean_img = imread(config.Data.mean_image_file_name)
     def __init__(self,
                images_path_list, image_label_list=None, to_category=True, for_cnn=True):
         """
@@ -206,6 +205,7 @@ class DataSet(object):
         self._epochs_completed = 0
         self._index_in_epoch = 0
         self._for_cnn = for_cnn
+        self.mean_img = imread(config.Data.mean_image_file_name)
         if image_label_list is not None:
             random = 2016
             np.random.seed(random)
