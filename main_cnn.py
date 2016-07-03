@@ -29,7 +29,7 @@ if __name__ == '__main__':
     logging.info("train data image count %s" % train_data.count())
     logging.info("validation data image count %s" % validation_data.count())
 
-    cnn_model = getattr(model_factory, config.CNN.model_name)(weights_path=config.CNN.keras_train_weight)
+    cnn_model = getattr(model_factory, config.CNN.model_name)(weights_path=config.CNN.keras_train_weight, lr=config.CNN.lr)
 
     model = KerasModel(cnn_model=cnn_model)
     model.train_model(train_data, validation_data, save_best=True)
