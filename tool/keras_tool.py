@@ -75,19 +75,18 @@ def resize_and_mean(image, size=(224, 224), mean=(103.939, 116.779, 123.68)):
     for c in range(3):
         img_resized[c, :, :] = img_resized[c, :, :] - mean[c]
     return img_resized
-def transpose_and_mean(image, mean=(103.939, 116.779, 123.68)):
+def image_preprocess(image, mean):
     """
 
     :param image:
-    :param mean:
+    :param mean: the mean img computed by  data_tool.compute_mean_image
     :return:
     """
-
-    img = image.transpose((2, 0, 1))
-
-    for c in range(3):
-        img[c, :, :] = img[c, :, :] - mean[c]
-    return img
+    image -= mean
+    image = image.transpose((2, 0, 1))
+    image = image.astype(float)
+    image /= 256.0
+    return image
 
 def load_test_data_set(test_image_path, for_cnn=True):
     test_image_list = load_image_path_list(test_image_path)
@@ -184,6 +183,7 @@ def load_train_validation_data_set(path, validation_split=0.2, to_category=True,
 
 
 class DataSet(object):
+    mean_img = imread(config.Data.mean_image_file_name)
     def __init__(self,
                images_path_list, image_label_list=None, to_category=True, for_cnn=True):
         """
@@ -242,7 +242,7 @@ class DataSet(object):
         for image_path in image_path_list:
             im = imread(image_path)
             if self._for_cnn:
-                im = transpose_and_mean(im)
+                im = image_preprocess(im, self.mean_img)
             image_pic_list.append(im)
         return np.array(image_pic_list)
 
