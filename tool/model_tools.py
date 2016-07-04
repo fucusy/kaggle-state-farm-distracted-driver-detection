@@ -283,16 +283,16 @@ class KerasModel(object):
                 logger.info('Saving the best model.')
 
                 if eva_loss < min_loss and save_best:
-                    old_weight_path = os.path.join(self._model_save_path, self._model_name + 'keras_weights_best_vLoss%.5f_vAcc%.3f.h5'%(min_loss,max_acc))
+                    old_weight_path = os.path.join(self._model_save_path, self._model_name + '_loss%.5f_acc%.3f_keras.h5'%(min_loss,max_acc))
                     if os.path.exists(old_weight_path):
                         os.remove(old_weight_path)
                     min_loss = eva_loss
                     max_acc = eva_acc
-                    new_weight_path = os.path.join(self._model_save_path, self._model_name + 'keras_weights_best_vLoss%.5f_vAcc%.3f.h5'%(min_loss,max_acc))
+                    new_weight_path = os.path.join(self._model_save_path, self._model_name + '_loss%.5f_acc%.3f_keras.h5'%(min_loss,max_acc))
                     self._model.save_weights(new_weight_path, overwrite=True)
                     self.best_model_weight_path = new_weight_path
 
-            final_weight_path = os.path.join(self._model_save_path, self._model_name + 'keras_weights_final.h5')
+            final_weight_path = os.path.join(self._model_save_path, self._model_name + '_keras.h5')
             self._model.save_weights(final_weight_path, overwrite=True)
             
         else:
@@ -300,7 +300,8 @@ class KerasModel(object):
             logging.info('start training')
             CallBacks = []
             if save_best:
-                weight_path = os.path.join(self._model_save_path, self._model_name + 'keras_checkpoint_weights_best.h5')
+                weight_path = os.path.join(self._model_save_path, self._model_name + '_checkpoint_weights_best_keras.h5')
+                self.best_model_weight_path = weight_path
                 checkpoint = ModelCheckpoint(weight_path, monitor='val_loss', verbose=0, save_best_only=True, mode='auto')
                 CallBacks.append(checkpoint)
 

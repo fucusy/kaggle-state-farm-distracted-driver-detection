@@ -15,21 +15,26 @@ from keras.layers.core import Dense, Dropout, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, \
                                        ZeroPadding2D
 
+from keras.models import model_from_json
 from keras.optimizers import SGD
-
 import logging
 import h5py
 import os
 from tool.keras_tool import load_model
+
 logger = logging.getLogger('cnn_model')
 
 def simple_cnn_vgg_like(lr=1e-3, weights_path=None):
     img_rows, img_cols, color_type = 120, 160, 3
     # standard VGG16 network architecture
     
-    if weights_path is not None and os.path.exists(weights_path):
+    structure_path = "%s/cache/simple_cnn_vgg_like.json" % config.Project.project_path
+    if weights_path is not None and os.path.exists(weights_path) \
+        and os.path.exists(structure_path):
+
         logger.debug("load weigth from fine-tuning weight %s" % weights_path)
-        model = load_model(weights_path)
+        model = model_from_json(open(structure_path).read())
+        model.load_weights(weights_path)
     else:
         model = Sequential()
         model.add(ZeroPadding2D((1, 1), input_shape=(color_type,
