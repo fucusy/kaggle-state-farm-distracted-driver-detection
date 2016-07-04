@@ -10,21 +10,21 @@ sys.path.append('../')
 import config
 
 from keras.models import Sequential, model_from_json
-from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
-from keras.optimizers import SGD, Adadelta
+from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint
 
-from keras.layers.advanced_activations import LeakyReLU, PReLU
-from keras.layers.normalization import BatchNormalization
 import logging
 import numpy as np
 import csv
 import skimage.io as skio
-import scipy.io as sio
 import os
-
 from keras import backend as K
+import time
+
+logger = logging.getLogger("model_tool")
+
 
 def vgg_std16_model(img_rows, img_cols, color_type=1, model_weights_file='', continueFile='', optimizer='sgd'):
     model = Sequential()
@@ -197,8 +197,7 @@ class KerasModel(object):
         model_arch_file = config.CNN.model_arch_file_name
         model_weights_file = config.CNN.model_weights_file_name
         model_save_path = config.CNN.model_save_path
-        prediction_save_file = config.CNN.prediction_save_file
-
+        prediction_save_file = config.Project.result_output_path + "/" +time.strftime("%Y_%m_%d__%H_%M.csv")
 
         self._model_name = model_name
         self._n_iter = n_iter
@@ -211,6 +210,8 @@ class KerasModel(object):
         self._prediction_save_file = prediction_save_file
         self._prediction = {}
         self._model = cnn_model
+
+        self.best_model_weight_path = ""
     
     def set_model_arch(self, model_arch):
         self._model = model_arch
@@ -232,25 +233,31 @@ class KerasModel(object):
 
         fragment_size = config.CNN.load_image_to_memory_every_time
         if fragment_size > 0:
-            '''If data fragment is needed.'''
+            logger.info("can not load data into memory at once, it will load %d images every time" % fragment_size)
             min_loss = np.inf
             max_acc = 0.
-            
+
+            logger.info("training neural network on data repeatedly %d times" % self._n_iter)
             for it in range(self._n_iter):
-                '''Every iter, we read fragments one by one and train model with them setting nb_epoch=1.'''
+
+                logger.info("training neural network on data at %d time" % it)
                 image_count = 0
 
                 # set index to zero, prepare for have_next function
                 train_data.reset_index()
+                have_print_data_shape = False
 
                 while train_data.have_next():
                     x_train, y_train, _ = train_data.next_fragment(fragment_size,need_label=True)
-                    image_count += fragment_size
-                    logging.info('%s | iter %03d --> validation fragment %d / %d'
+                    image_count += len(x_train)
+                    if not have_print_data_shape:
+                        print x_train[0].shape
+                        have_print_data_shape = not have_print_data_shape
+                    logging.info('%s | iter %03d --> training progress  %d / %d'
                                    % (self._model_name, it, image_count, train_data.count()))
 
                     self._model.fit(x_train, y_train, batch_size=self._batch_size, nb_epoch=1)
-                ''' After all training fragments are trained, we read validation fragments and evaluate the model on them. '''
+                logger.info('After all training fragments are trained, evaluate the model on validation data set.')
 
                 eva_loss = []
                 eva_acc = []
@@ -260,29 +267,32 @@ class KerasModel(object):
                 validation_data.reset_index()
 
                 while validation_data.have_next():
-                    image_count += fragment_size
-                    print('%s | iter %03d --> validation fragment %d / %d'
+                    x_valid, y_valid, _ = validation_data.next_fragment(fragment_size, need_label=True)
+                    image_count += len(x_valid)
+                    logger.info('%s | iter %03d --> validation progress %d / %d'
                           % (self._model_name, it, image_count, validation_data.count()))
-
-                    x_valid, y_valid, _ = validation_data.next_fragment(fragment_size,need_label=True)
-
                     loss, acc = self._model.evaluate(x_valid, y_valid, batch_size=self._batch_size)
                     eva_loss.append(loss)
                     eva_acc.append(acc)
-                ''' Compute mean evaluation loss and accuracy and output them.'''
-                eva_loss = np.mean(eva_loss)
-                eva_acc = np.mean(eva_acc)
-                print('%s | iter %03d --> validation loss: %f, acc: %f'%(self._model_name, it, eva_loss, eva_acc))
-                ''' Save the best model. '''
+
+                logger.info('Compute mean evaluation loss and accuracy and output them.')
+                eva_loss = float(np.mean(eva_loss))
+                eva_acc = float(np.mean(eva_acc))
+                logger.info('%s | iter %03d --> validation loss: %f, acc: %f'%(self._model_name, it, eva_loss, eva_acc))
+
+                logger.info('Saving the best model.')
+
                 if eva_loss < min_loss and save_best:
-                    old_weight_path = os.path.join(self._model_save_path, self._model_name + 'keras_weights_best_vLoss%.5f_vAcc%.3f.h5'%(min_loss,max_acc))
+                    old_weight_path = os.path.join(self._model_save_path, self._model_name + '_loss%.5f_acc%.3f_keras.h5'%(min_loss,max_acc))
                     if os.path.exists(old_weight_path):
                         os.remove(old_weight_path)
                     min_loss = eva_loss
                     max_acc = eva_acc
-                    new_weight_path = os.path.join(self._model_save_path, self._model_name + 'keras_weights_best_vLoss%.5f_vAcc%.3f.h5'%(min_loss,max_acc))
+                    new_weight_path = os.path.join(self._model_save_path, self._model_name + '_loss%.5f_acc%.3f_keras.h5'%(min_loss,max_acc))
                     self._model.save_weights(new_weight_path, overwrite=True)
-            final_weight_path = os.path.join(self._model_save_path, self._model_name + 'keras_weights_final.h5')
+                    self.best_model_weight_path = new_weight_path
+
+            final_weight_path = os.path.join(self._model_save_path, self._model_name + '_keras.h5')
             self._model.save_weights(final_weight_path, overwrite=True)
             
         else:
@@ -290,7 +300,8 @@ class KerasModel(object):
             logging.info('start training')
             CallBacks = []
             if save_best:
-                weight_path = os.path.join(self._model_save_path, self._model_name + 'keras_checkpoint_weights_best.h5')
+                weight_path = os.path.join(self._model_save_path, self._model_name + '_checkpoint_weights_best_keras.h5')
+                self.best_model_weight_path = weight_path
                 checkpoint = ModelCheckpoint(weight_path, monitor='val_loss', verbose=0, save_best_only=True, mode='auto')
                 CallBacks.append(checkpoint)
 
@@ -303,14 +314,19 @@ class KerasModel(object):
     def predict_model(self, test_data):
         image_count = 0
         fragment_size = config.CNN.load_image_to_memory_every_time_when_test
+
+        # load best model weight
+        logger.info("loading best weight from %s" % self.best_model_weight_path)
+        self._model.load_weights(self.best_model_weight_path)
+
         if fragment_size > 0:
             while test_data.have_next():
-                image_count += fragment_size
-                print('%s | --> testing fragment %d / %d'%(self._model_name,
-                                       image_count, test_data.count()))
-
 
                 x_test, name_list = test_data.next_fragment(fragment_size, need_label=False)
+                image_count += len(x_test)
+                logger.info('%s | --> testing progress %d / %d' % (self._model_name,
+                                       image_count, test_data.count()))
+
                 frag_prediction = self._model.predict(x_test, batch_size=self._test_batch_size)
                 self.stat_prediction(frag_prediction, name_list)
             ''' We still call fuse function if only one prediction per image for universality.
@@ -321,7 +337,6 @@ class KerasModel(object):
             x_test, name_list = test_data.load_all_images(need_label=False)
             frag_prediction = self._model.predict(x_test, batch_size=self._test_batch_size)
             self.stat_prediction(frag_prediction, name_list)
-
 
         self.fuse_prediction()
         self.save_prediction()

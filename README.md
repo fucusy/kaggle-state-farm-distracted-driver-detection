@@ -5,10 +5,10 @@ A project built for kaggle competition [distracted drivers detection](https://ww
 
 ## environment
 
-* python 3.5
+* python 2.7
 * python library:
     in the requirements.md
-    to install pip packages use : `pip3.5 install -r pip_packages.txt`
+    to install pip packages use : `pip2.7 install -r pip_packages.txt`
     install tenserflow(tensorflow==0.8.0) from [here](https://www.tensorflow.org/versions/r0.8/get_started/os_setup.html#pip-installation)
 * Linux or unix System, may be windows
     
@@ -17,12 +17,12 @@ A project built for kaggle competition [distracted drivers detection](https://ww
 ### run machine learning method  
 
 1. move `config.tmpl.py` to `config.py`, you can use *unix command line `mv config.tmpl.py config.py`, and update the variable in this file 
-2. run the `main.py` by `python3.5 main.py`
+2. run the `main.py` by `python2.7 main.py`
 
 ### run cnn method vgg_try_karea network
 1. move `config.tmpl.py` to `config.py`, you can use *unix command line `mv config.tmpl.py config.py`, and update the variable in this file
-2. change your dir to `CNN/vgg_try_karea`, then train model by running `python3.5 train_model.py`, evaluate model by running `python3.5 evaluate_model.py`
-, predict test set by running `python3.5 predict_model.py`
+2. change your dir to `CNN/vgg_try_karea`, then train model by running `python2.7 train_model.py`, evaluate model by running `python2.7 evaluate_model.py`
+, predict test set by running `python2.7 predict_model.py`
 
 
 ## result
