@@ -25,71 +25,6 @@ import time
 
 logger = logging.getLogger("model_tool")
 
-
-def vgg_std16_model(img_rows, img_cols, color_type=1, model_weights_file='', continueFile='', optimizer='sgd'):
-    model = Sequential()
-    model.add(ZeroPadding2D((1, 1), input_shape=(color_type,
-                                                 img_rows, img_cols)))
-    model.add(Convolution2D(64, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(64, 3, 3, activation='relu'))
-    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
-
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(128, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(128, 3, 3, activation='relu'))
-    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
-
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(256, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(256, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(256, 3, 3, activation='relu'))
-    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
-
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
-
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1, 1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
-
-    model.add(Flatten(name='flatten'))
-    model.add(Dense(4096, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(4096, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(1000, activation='softmax'))
-    
-    if not continueFile:
-        print('loading orininal vgg weights')
-        model.load_weights(model_weights_file)
-
-    # Code above loads pre-trained data and
-    model.layers.pop()
-    model.add(Dense(10, activation='softmax'))
-    if continueFile:
-        print('load trained model to continue')
-        model.load_weights(continueFile)
-    # Learning rate is changed to 0.001
-    if optimizer == 'sgd':
-        opt = SGD(lr=1.5e-3, decay=1e-6, momentum=0.9, nesterov=True)
-    print('vgg model compiling')
-    model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
-    return model
-
-
 class KerasFeatureExtractor(object):
     '''
         Using existing model to extract CNN features.
@@ -190,7 +125,6 @@ class KerasFeatureExtractor(object):
 
 class KerasModel(object):
     def __init__(self, cnn_model):
-
         model_name = config.CNN.model_name
         test_batch_size = config.CNN.test_batch_size
         n_iter = config.CNN.train_iter
@@ -207,11 +141,14 @@ class KerasModel(object):
         self._batch_size = config.CNN.batch_size
         self._test_batch_size = test_batch_size
 
-        self._prediction_save_file = prediction_save_file
+        self.prediction_save_file = prediction_save_file
         self._prediction = {}
         self._model = cnn_model
 
         self.best_model_weight_path = ""
+        self.min_loss = np.inf
+        self.max_acc = 0.
+        self.fragment_size = config.CNN.load_image_to_memory_every_time
     
     def set_model_arch(self, model_arch):
         self._model = model_arch
@@ -225,7 +162,44 @@ class KerasModel(object):
     
     def save_model_weights(self, weights_path_file, overwrite=True):
         self._model.save_weights(weights_path_file, overwrite=overwrite)
-    
+    def validate(self, validation_data):
+        eva_loss = []
+        eva_acc = []
+        image_count = 0
+
+        # set index to zero, prepare for have_next function
+        validation_data.reset_index()
+
+        while validation_data.have_next():
+            x_valid, y_valid, _ = validation_data.next_fragment(self.fragment_size, need_label=True)
+            image_count += len(x_valid)
+            logger.info('%s | --> validation progress %d / %d'
+                  % (self._model_name, image_count, validation_data.count()))
+            loss, acc = self._model.evaluate(x_valid, y_valid, batch_size=self._batch_size)
+            eva_loss.append(loss)
+            eva_acc.append(acc)
+
+        logger.info('Compute mean evaluation loss and accuracy and output them.')
+        eva_loss = float(np.mean(eva_loss))
+        eva_acc = float(np.mean(eva_acc))
+        logger.info('%s |  validation loss: %f, acc: %f'%(self._model_name, eva_loss, eva_acc))
+
+        logger.info('Saving the best model.')
+
+        height_file_name_tpl = "%s_loss_%.3f_acc_%.3f_keras.h5"
+        if eva_loss < self.min_loss:
+            old_weight_path = os.path.join(self._model_save_path, height_file_name_tpl % (self._model_name, self.min_loss, self.max_acc))
+            if os.path.exists(old_weight_path):
+                os.remove(old_weight_path)
+            self.min_loss = eva_loss
+            self.max_acc = eva_acc
+            new_weight_path = os.path.join(self._model_save_path, height_file_name_tpl % (self._model_name, self.min_loss, self.max_acc))
+            self._model.save_weights(new_weight_path, overwrite=True)
+            self.best_model_weight_path = new_weight_path
+
+            final_weight_path = os.path.join(self._model_save_path, self._model_name + '_keras.h5')
+            self._model.save_weights(final_weight_path, overwrite=True)
+
     def train_model(self, train_data, validation_data, save_best=True):
         json_string = self._model.to_json()
         json_path = os.path.join(self._model_save_path, self._model_name + '.json')
@@ -234,8 +208,6 @@ class KerasModel(object):
         fragment_size = config.CNN.load_image_to_memory_every_time
         if fragment_size > 0:
             logger.info("can not load data into memory at once, it will load %d images every time" % fragment_size)
-            min_loss = np.inf
-            max_acc = 0.
 
             logger.info("training neural network on data repeatedly %d times" % self._n_iter)
             for it in range(self._n_iter):
@@ -247,6 +219,8 @@ class KerasModel(object):
                 train_data.reset_index()
                 have_print_data_shape = False
 
+                validate_every_img = 20000
+                validate_after = validate_every_img
                 while train_data.have_next():
                     x_train, y_train, _ = train_data.next_fragment(fragment_size,need_label=True)
                     image_count += len(x_train)
@@ -255,46 +229,12 @@ class KerasModel(object):
                         have_print_data_shape = not have_print_data_shape
                     logging.info('%s | iter %03d --> training progress  %d / %d'
                                    % (self._model_name, it, image_count, train_data.count()))
-
                     self._model.fit(x_train, y_train, batch_size=self._batch_size, nb_epoch=1)
+                    if image_count > validate_after:
+                        self.validate(validation_data)
+                        validate_after += validate_every_img
                 logger.info('After all training fragments are trained, evaluate the model on validation data set.')
 
-                eva_loss = []
-                eva_acc = []
-                image_count = 0
-
-                # set index to zero, prepare for have_next function
-                validation_data.reset_index()
-
-                while validation_data.have_next():
-                    x_valid, y_valid, _ = validation_data.next_fragment(fragment_size, need_label=True)
-                    image_count += len(x_valid)
-                    logger.info('%s | iter %03d --> validation progress %d / %d'
-                          % (self._model_name, it, image_count, validation_data.count()))
-                    loss, acc = self._model.evaluate(x_valid, y_valid, batch_size=self._batch_size)
-                    eva_loss.append(loss)
-                    eva_acc.append(acc)
-
-                logger.info('Compute mean evaluation loss and accuracy and output them.')
-                eva_loss = float(np.mean(eva_loss))
-                eva_acc = float(np.mean(eva_acc))
-                logger.info('%s | iter %03d --> validation loss: %f, acc: %f'%(self._model_name, it, eva_loss, eva_acc))
-
-                logger.info('Saving the best model.')
-
-                if eva_loss < min_loss and save_best:
-                    old_weight_path = os.path.join(self._model_save_path, self._model_name + '_loss%.5f_acc%.3f_keras.h5'%(min_loss,max_acc))
-                    if os.path.exists(old_weight_path):
-                        os.remove(old_weight_path)
-                    min_loss = eva_loss
-                    max_acc = eva_acc
-                    new_weight_path = os.path.join(self._model_save_path, self._model_name + '_loss%.5f_acc%.3f_keras.h5'%(min_loss,max_acc))
-                    self._model.save_weights(new_weight_path, overwrite=True)
-                    self.best_model_weight_path = new_weight_path
-
-            final_weight_path = os.path.join(self._model_save_path, self._model_name + '_keras.h5')
-            self._model.save_weights(final_weight_path, overwrite=True)
-            
         else:
             ''' If no need to fragment, load all training images and train the model directly.'''
             logging.info('start training')
@@ -317,7 +257,6 @@ class KerasModel(object):
 
         # load best model weight
         logger.info("loading best weight from %s" % self.best_model_weight_path)
-        self._model.load_weights(self.best_model_weight_path)
 
         if fragment_size > 0:
             while test_data.have_next():
@@ -337,10 +276,6 @@ class KerasModel(object):
             x_test, name_list = test_data.load_all_images(need_label=False)
             frag_prediction = self._model.predict(x_test, batch_size=self._test_batch_size)
             self.stat_prediction(frag_prediction, name_list)
-
-        self.fuse_prediction()
-        self.save_prediction()
-
     ''' Update prediction dict. '''
     def stat_prediction(self, frag_prediction, frag_list):
         frag_prediction = np.array(frag_prediction)
@@ -361,7 +296,8 @@ class KerasModel(object):
 
     ''' Save prediction dict '''
     def save_prediction(self):
-        file_obj = open(self._prediction_save_file, 'wb')
+        self.fuse_prediction()
+        file_obj = open(self.prediction_save_file, 'wb')
         writer = csv.writer(file_obj)
         writer.writerow(['img','c0','c1','c2','c3','c4','c5','c6','c7','c8','c9'])
         keys = self._prediction.keys()

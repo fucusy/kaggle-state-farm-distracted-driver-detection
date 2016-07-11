@@ -82,10 +82,10 @@ def image_preprocess(image, mean):
     :param mean: the mean img computed by  data_tool.compute_mean_image
     :return:
     """
-    image -= mean
+    # image -= mean
     image = image.transpose((2, 0, 1))
     image = image.astype(float)
-    image /= 256.0
+    # image /= 256.0
     return image
 
 def load_test_data_set(test_image_path, for_cnn=True):

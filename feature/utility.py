@@ -8,6 +8,7 @@ from config import Project
 import config
 import pickle
 from tool.keras_tool import load_train_validation_data_set, load_test_data_set
+import numpy as np
 
 
 cache_path = "%s/cache" % Project.project_path
@@ -16,6 +17,7 @@ if not os.path.exists(cache_path):
 
 hog_feature_cache_file_path = "%s/%s" % (cache_path, "hog_feature_cache.pickle")
 lbp_feature_cache_file_path = "%s/%s" % (cache_path, "lbp_feature_cache.pickle")
+
 
 def load_cache():
     # load cache
@@ -31,9 +33,14 @@ def load_cache():
         lbp_feature_file = open(lbp_feature_cache_file_path, "rb")
         lbp_feature_cache = pickle.load(lbp_feature_file)
         lbp_feature_file.close()
-
-
     return hog_feature_cache, lbp_feature_cache
+
+def load_feature_from_pickle(path):
+    result = None
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            return pickle.load(f)
+    return None
 
 def save_cache(hog_feature_cache, lbp_feature_cache):
     hog_feature_file = open(hog_feature_cache_file_path, "wb")
@@ -57,7 +64,7 @@ def image_path_to_feature(image_path_list, hog_cache, lbp_cache):
     return features
 
 
-def load_train_validation_feature(img_data_path, hog_cache, lbp_cache, limit=-1):
+def load_train_validation_feature(img_data_path, hog_cache, lbp_cache, feature_list, limit=-1):
 
     train_x = []
     train_y = []
@@ -82,12 +89,22 @@ def load_train_validation_feature(img_data_path, hog_cache, lbp_cache, limit=-1)
     validation_x = image_path_to_feature(validation_path_list, hog_cache, lbp_cache)
     validation_y = validation_label_list
 
+    # add feature in feature_list to train_x and validation_x
+    for i in range(len(train_x)):
+        img_name = os.path.basename(train_path_list[i])
+        for j in range(len(feature_list)):
+            train_x[i] = list(train_x[i])
+            train_x[i] += list(feature_list[j][img_name][0])
+
+    for i in range(len(validation_x)):
+        img_name = os.path.basename(train_path_list[i])
+        for j in range(len(feature_list)):
+            validation_x[i] = list(validation_x[i])
+            validation_x[i] += list(feature_list[j][img_name][0])
+
     return train_x, train_y, validation_x, validation_y
 
-
 def load_test_feature(img_data_path, hog_feature_cache, lbp_feature_cache, limit=-1):
-
-
 
     test_img_num = 79726
     x_feature = []
@@ -115,6 +132,14 @@ def load_test_feature(img_data_path, hog_feature_cache, lbp_feature_cache, limit
         x_feature.append(extract_feature(img_path, hog_feature_cache, lbp_feature_cache))
 
     logging.info("load feature from test image end")
+
+    # add feature in feature_list to train_x and validation_x
+    for i in range(len(x_feature)):
+        img_name = relevant_image_path_list[i]
+        for j in range(len(feature_list)):
+            x_feature[i] = list(x_feature[i])
+            x_feature[i] += list(feature_list[j][img_name][0])
+
     return relevant_image_path_list[:count], x_feature[:count]
 
 def extract_feature(img_path, hog_feature_cache, lbp_feature_cache):
@@ -134,7 +159,7 @@ def extract_feature(img_path, hog_feature_cache, lbp_feature_cache):
         lbp_feature = get_lbp_his(img)
         lbp_feature_cache[img_name] = lbp_feature
 
-    feature += list(hog_feature)
-    feature += list(lbp_feature)
+    #feature += list(hog_feature)
+    #feature += list(lbp_feature)
 
     return feature
