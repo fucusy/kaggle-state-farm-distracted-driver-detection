@@ -9,6 +9,7 @@ from feature.utility import load_train_validation_feature
 from feature.utility import load_test_feature
 from tool.file import generate_result_file
 from feature.utility import load_cache
+from feature.utility import load_feature_from_pickle
 from feature.utility import save_cache
 from sklearn.metrics import classification_report
 from sklearn.metrics import log_loss
@@ -16,6 +17,7 @@ from sklearn.metrics import log_loss
 
 hog_feature_cache = {}
 lbp_feature_cache = {}
+cache_path = "%s/cache" % Project.project_path
 
 if __name__ == '__main__':
     level = logging.DEBUG
@@ -28,16 +30,31 @@ if __name__ == '__main__':
     start_time = datetime.datetime.now()
     logging.info('start program---------------------')
     logging.info("loading feature cache now")
-    hog_feature_cache, lbp_feature_cache = load_cache()
-    logging.info("load feature cache end")
+    feature_list = []
+    vgg_feature_path = "%s/%s" % (cache_path, "vgg_feature.pickle")
+    logging.info("load vgg featuer from %s" % vgg_feature_path)
+    vgg_feature = load_feature_from_pickle(vgg_feature_path)
+    if vgg_feature is not None:
+        feature_list.append(vgg_feature)
+        key = vgg_feature.keys()[0]
+        logging.info("vgg_feature[%s][0]=%s" % (key, vgg_feature[key][0]))
+    else:
+        logging.warning("fail to vgg_feature")
 
+    hog_feature_cache, lbp_feature_cache = load_cache()
+    
+
+    logging.info("%s features in feature_list" % len(feature_list))
+
+    logging.info("load feature cache end")
     logging.info("load train data feature now")
-    train_x_feature, train_y, validation_x, validation_y = load_train_validation_feature(Project.train_img_folder_path, hog_feature_cache, lbp_feature_cache,train_num)
+    train_x_feature, train_y, validation_x, validation_y = load_train_validation_feature(Project.train_img_folder_path, hog_feature_cache, lbp_feature_cache, feature_list, train_num)
     logging.info("extract train data feature done")
 
     logging.info("start to train the model")
 
     logging.debug("len of train_x_feature = %d" % len(train_x_feature))
+    logging.debug("len of train_x_feature[0] = %d" % len(train_x_feature[0]))
 
     logging.debug("len of train_y = %d" % len(train_y))
     Project.predict_model.fit(x_train=train_x_feature, y_train=train_y)
@@ -45,7 +62,8 @@ if __name__ == '__main__':
     logging.info("train the model done")
 
     logging.info("load test feature now")
-    test_img_names, test_x_feature = load_test_feature(Project.test_img_folder_path, hog_feature_cache, lbp_feature_cache, test_num)
+    test_img_names, test_x_feature = load_test_feature(Project.test_img_folder_path, hog_feature_cache, lbp_feature_cache, feature_list, test_num)
+
     logging.info("load test feature done")
 
     if Project.save_cache:
