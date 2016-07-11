@@ -102,7 +102,7 @@ def load_train_validation_feature(img_data_path, hog_cache, lbp_cache, feature_l
             validation_x[i] = list(validation_x[i])
             validation_x[i] += list(feature_list[j][img_name][0])
 
-    return train_x, train_y, validation_x, validation_y
+    return train_path_list[:limit], train_x, train_y, validation_path_list, validation_x, validation_y
 
 def load_test_feature(img_data_path, hog_feature_cache, lbp_feature_cache, limit=-1):
 

@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     logging.info("load feature cache end")
     logging.info("load train data feature now")
-    train_x_feature, train_y, validation_x, validation_y = load_train_validation_feature(Project.train_img_folder_path, hog_feature_cache, lbp_feature_cache, feature_list, train_num)
+    train_path_list, train_x_feature, train_y, validation_path_list, validation_x, validation_y = load_train_validation_feature(Project.train_img_folder_path, hog_feature_cache, lbp_feature_cache, feature_list, train_num)
     logging.info("extract train data feature done")
 
     logging.info("start to train the model")
@@ -57,7 +57,9 @@ if __name__ == '__main__':
     logging.debug("len of train_x_feature[0] = %d" % len(train_x_feature[0]))
 
     logging.debug("len of train_y = %d" % len(train_y))
-    Project.predict_model.fit(x_train=train_x_feature, y_train=train_y)
+
+    Project.predict_model.fit(x_train=train_x_feature, y_train=train_y
+                              , x_validation=validation_x, y_validation=validation_y)
 
     logging.info("train the model done")
 

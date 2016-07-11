@@ -12,8 +12,8 @@ class Model(object):
     def predict(self, x_test):
         pass
 
-    def grid_search_fit_(self, clf, param_grid, x_train, y_train):
-        model = grid_search.GridSearchCV(estimator=clf, param_grid=param_grid, cv=2, verbose=20
+    def grid_search_fit_(self, clf, param_grid, x_train, y_train, cv=2):
+        model = grid_search.GridSearchCV(estimator=clf, param_grid=param_grid, cv=cv, verbose=20
                                          , scoring=make_scorer(f1_score))
         model.fit(x_train, y_train)
         print("Best parameters found by grid search:")
