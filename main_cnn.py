@@ -27,7 +27,7 @@ if __name__ == '__main__':
     logging.info("original test image dir:%s" % test_path)
 
     train_img_path_list = [train_base_path, test_path]
-    img_size = (244, 244)
+    img_size = (224, 224)
     resize_image_main(train_img_path_list, img_size)
     # resize end
 
