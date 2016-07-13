@@ -66,6 +66,6 @@ if __name__ == "__main__":
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
     driver = skio.imread(config.Project.project_path + "/test_image/img_94.jpg")
-    to_size = (244, 244)
+    to_size = (224, 224)
     crop = crop_center(driver, to_size)
     skio.imsave("crop_center_94.jpg", crop)
