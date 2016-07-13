@@ -1,5 +1,7 @@
 from sklearn import grid_search
-from sklearn.metrics import make_scorer, f1_score
+from sklearn.metrics import make_scorer, log_loss
+from keras.utils.np_utils import to_categorical
+import numpy as np
 
 class Model(object):
 
@@ -13,8 +15,8 @@ class Model(object):
         pass
 
     def grid_search_fit_(self, clf, param_grid, x_train, y_train, cv=2):
-        model = grid_search.GridSearchCV(estimator=clf, param_grid=param_grid, cv=cv, verbose=20
-                                         , scoring=make_scorer(f1_score))
+        model = grid_search.GridSearchCV(estimator=clf, param_grid=param_grid, cv=cv, verbose=20, scoring=make_scorer(log_loss))
+        print("y_train = %s" % y_train)
         model.fit(x_train, y_train)
         print("Best parameters found by grid search:")
         print(model.best_params_)

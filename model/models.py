@@ -7,6 +7,7 @@ from sklearn.metrics import classification_report
 from sklearn import svm
 import logging
 from sklearn.cross_validation import PredefinedSplit
+import numpy as np
 
 
 class RandomForestClassification(Model):
@@ -16,15 +17,12 @@ class RandomForestClassification(Model):
         self.model = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=2016, verbose=1, max_depth=1000, max_features=400)
 
     def fit(self, x_train, y_train, x_validation=None, y_validation=None):
-        param_grid = {'n_estimators': [300, ], 'max_depth': [400, ], 'max_features': [800, ]}
-        train_validation_feature = x_train + x_validation
-        train_validation_y = y_train + y_validation
+        param_grid = {'n_estimators': [300, 500, 800], 'max_depth': [400, 600, 1000], 'max_features': [400, 800, 1500]}
+        train_validation_feature = list(x_train) + list(x_validation)
+        train_validation_y = list(y_train) + list(y_validation)
         test_fold = [-1] * len(x_train) + [1] * len(x_validation)
         cv = PredefinedSplit(test_fold=test_fold)
         self.model = self.grid_search_fit_(self.model, param_grid, train_validation_feature, train_validation_y, cv)
-        train_pred = cross_val_predict(self.model, x_train, y_train, cv=2)
-        report = classification_report(y_train, train_pred)
-        logging.info("the cross validation report:\n %s" % report)
 
     def predict(self, x_test):
         return self.model.predict(x_test)
