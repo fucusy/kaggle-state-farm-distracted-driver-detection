@@ -50,15 +50,10 @@ def crop_center(img, img_size):
 
     height, width = img.shape[0], img.shape[1]
 
-    corp_img = np.zeros((img_size[0], img_size[1], 3), dtype=np.uint8)
-
     height_offset = (height - img_size[0]) / 2
     width_offset = (width - img_size[1]) / 2
 
-    for h in range(img_size[0]):
-        for w in range(img_size[1]):
-            corp_img[h, w, :] = img[h + height_offset, w + width_offset, :]
-
+    corp_img = img[height_offset:height_offset + img_size[0], width_offset:width_offset + img_size[1], :]
     return corp_img
 
 def add_padding_main(from_path, img_size, force=False):
@@ -78,6 +73,7 @@ if __name__ == "__main__":
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
     driver = skio.imread(config.Project.project_path + "/test_image/img_94.jpg")
-    to_size = (224, 224)
+    driver = skio.imread(config.Project.test_img_example_path)
+    to_size = (336, 480)
     crop = crop_center(driver, to_size)
-    skio.imsave("crop_center_94.jpg", crop)
+    skio.imsave("crop_center_new.jpg", crop)
