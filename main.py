@@ -28,12 +28,15 @@ if __name__ == '__main__':
     logging.info('start program---------------------')
     logging.info("loading feature cache now")
 
+    train_img_folder = "/home/chenqiang/kaggle_driver_test_data/imgs/train"
+    test_img_folder = "/home/chenqiang/kaggle_driver_test_data/imgs/test"
+
     feature_dir_list = ["%s/vgg_feature_l_31/" % cache_path]
 
-    train_data, validation_data, test_data = load_data(config.Project.train_img_folder_path, config.Project.test_img_folder_path)
+    train_data, validation_data, test_data = load_data(train_img_folder, test_img_folder)
     
-    train_y = train_data.image_label_list
-    validation_y = validation_data.image_label_list
+    train_y = train_data.get_image_label(to_cate=False)
+    validation_y = validation_data.get_image_label(to_cate=False)
 
 
     logging.info("train_y shape %s" % str(train_y.shape)) 
@@ -56,6 +59,7 @@ if __name__ == '__main__':
                 feature_list[j] = np.vstack((feature_list[j], x))
             if i % 100 == 0:
                 logging.info("load feature of %dth %s at dataset %d" % (i, path, j))
+
     train_data_feature = feature_list[0] 
     validation_data_feature = feature_list[1]
 
