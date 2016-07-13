@@ -219,7 +219,7 @@ class KerasModel(object):
                 train_data.reset_index()
                 have_print_data_shape = False
 
-                validate_every_img = 20000
+                validate_every_img = 4000
                 validate_after = validate_every_img
                 while train_data.have_next():
                     x_train, y_train, _ = train_data.next_fragment(fragment_size,need_label=True)

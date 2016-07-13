@@ -195,6 +195,7 @@ class DataSet(object):
             images_path_list = np.array(images_path_list)
 
         if image_label_list is not None:
+            self._one_images_label = np.array(image_label_list)
             if to_category:
                 image_label_list = to_categorical(np.array(image_label_list), 10)
             else:
@@ -212,6 +213,7 @@ class DataSet(object):
             permut = np.random.permutation(len(images_path_list))
             self._images_path = images_path_list[permut]
             self._images_label = image_label_list[permut]
+            self._one_images_label = self._one_images_label[permut]
     @property
     def image_path_list(self):
         return self._images_path
@@ -220,7 +222,6 @@ class DataSet(object):
     def image_label_list(self):
         return self._images_label
 
-
     @property
     def num_examples(self):
         return self._num_examples
@@ -228,6 +229,12 @@ class DataSet(object):
     @property
     def epochs_completed(self):
         return self._epochs_completed
+
+    def get_image_label(self, to_cate=True):
+        if to_cate:
+            return self._images_label
+        else:
+            return self._one_images_label
 
     def count(self):
         return self._num_examples
