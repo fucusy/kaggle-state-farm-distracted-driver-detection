@@ -86,7 +86,7 @@ def loop_process_test_image(from_path, to_path, method, args, force=False):
     for file_path in file_paths:
         count += 1
         if count % 1000 == 0:
-            logging.debug("process %d/%d %.3f image" % (count, total, count * 1.0 / total))
+            logging.debug("process %d/%d %.3f%% image" % (count, total, count * 100.0 / total))
         f = os.path.basename(file_path)
         img = skio.imread(file_path)
         args["img"] = img
@@ -123,7 +123,7 @@ def loop_process_train_image(from_path, to_path, method, args, force=False):
         for file_path in file_paths:
             count += 1
             if count % 1000 == 0:
-                logging.debug("process %d/%d %.3f image" % (count, total, count * 1.0 / total))
+                logging.debug("process %d/%d %.3f%% image" % (count, total, count * 100.0 / total))
             f = os.path.basename(file_path)
             img = skio.imread(file_path)
             args["img"] = img

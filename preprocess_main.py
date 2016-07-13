@@ -3,6 +3,7 @@ import config
 from preprocess.resize import resize_image_main
 from preprocess.argument import argument_main
 from preprocess.resize import add_padding_main
+from preprocess.resize import crop_image_main
 from tool.data_tools import compute_mean_image
 
 from tool.model_tools import KerasModel
@@ -21,12 +22,7 @@ if __name__ == '__main__':
     # argument_main()
 
     # resize begin
-    path_list = ["/home/chenqiang/kaggle_driver_data/imgs/test_244_244", "/home/chenqiang/kaggle_driver_data/imgs/train_244_244"]
+    path_list = ["/home/chenqiang/kaggle_driver_data/imgs/train", "/home/chenqiang/kaggle_driver_data/imgs/test"]
 
-    img_size = (122, 122)
-    resize_image_main(path_list, img_size)
-    # resize end
-
-    path_list = ["/home/chenqiang/kaggle_driver_data/imgs/test_244_244_122_122", "/home/chenqiang/kaggle_driver_data/imgs/train_244_244_122_122"]
-    img_size = (244, 244)
-    add_padding_main(path_list, img_size)
+    img_size = (336, 336)
+    crop_image_main(path_list, img_size)

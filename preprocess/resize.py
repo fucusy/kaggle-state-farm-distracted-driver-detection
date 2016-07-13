@@ -35,17 +35,6 @@ def add_padding(img, img_size):
 
     return result
 
-def resize_image_main(from_path, img_size, force=False):
-    for path in from_path:
-        img_size_str_list = [str(x) for x in img_size]
-        to_path = "%s_%s" % (path, "_".join(img_size_str_list))
-        args = {"img_size": img_size}
-        logging.info("resize image in %s to %s" % (path, to_path))
-        if 'c0' in os.listdir(path):
-            loop_process_train_image(path, to_path, resize_image, args, force)
-        else:
-            loop_process_test_image(path, to_path, resize_image, args, force)
-
 def crop_center(img, img_size):
 
     height, width = img.shape[0], img.shape[1]
@@ -67,6 +56,30 @@ def add_padding_main(from_path, img_size, force=False):
         else:
             loop_process_test_image(path, to_path, add_padding, args, force)
 
+
+def resize_image_main(from_path, img_size, force=False):
+    for path in from_path:
+        img_size_str_list = [str(x) for x in img_size]
+        to_path = "%s_%s" % (path, "_".join(img_size_str_list))
+        args = {"img_size": img_size}
+        logging.info("resize image in %s to %s" % (path, to_path))
+        if 'c0' in os.listdir(path):
+            loop_process_train_image(path, to_path, resize_image, args, force)
+        else:
+            loop_process_test_image(path, to_path, resize_image, args, force)
+
+
+
+def crop_image_main(from_path, img_size, force=False):
+    for path in from_path:
+        img_size_str_list = [str(x) for x in img_size]
+        to_path = "%s_crop_%s" % (path, "_".join(img_size_str_list))
+        args = {"img_size": img_size}
+        logging.info("crop image in %s to %s" % (path, to_path))
+        if 'c0' in os.listdir(path):
+            loop_process_train_image(path, to_path, crop_center, args, force)
+        else:
+            loop_process_test_image(path, to_path, crop_center, args, force)
 
 if __name__ == "__main__":
     level = logging.DEBUG
