@@ -46,13 +46,26 @@ def resize_image_main(from_path, img_size, force=False):
         else:
             loop_process_test_image(path, to_path, resize_image, args, force)
 
+def crop_center(img, img_size):
 
+    height, width = img.shape[0], img.shape[1]
+
+    corp_img = np.zeros((img_size[0], img_size[1], 3), dtype=np.uint8)
+
+    height_offset = (height - img_size[0]) / 2
+    width_offset = (width - img_size[1]) / 2
+
+    for h in range(img_size[0]):
+        for w in range(img_size[1]):
+            corp_img[h, w, :] = img[h + height_offset, w + width_offset, :]
+
+    return corp_img
 
 if __name__ == "__main__":
     level = logging.DEBUG
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
-    driver = skio.imread(config.Project.test_img_example_path)
-    to_size = (driver.shape[0] + 100, driver.shape[1] + 100)
-    padding = add_padding(driver, to_size)
-    skio.imsave("add_padding.jpg", padding)
+    driver = skio.imread(config.Project.project_path + "/test_image/img_94.jpg")
+    to_size = (244, 244)
+    crop = crop_center(driver, to_size)
+    skio.imsave("crop_center_94.jpg", crop)
