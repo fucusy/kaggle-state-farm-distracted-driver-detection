@@ -1,9 +1,10 @@
 __author__ = 'fucus'
-
-
+import os
+from tool.keras_tool import load_data
 import logging
 import sys
 import datetime
+import config
 from config import Project
 from feature.utility import load_train_validation_feature
 from feature.utility import load_test_feature
@@ -13,10 +14,9 @@ from feature.utility import load_feature_from_pickle
 from feature.utility import save_cache
 from sklearn.metrics import classification_report
 from sklearn.metrics import log_loss
+import numpy as np
 
 
-hog_feature_cache = {}
-lbp_feature_cache = {}
 cache_path = "%s/cache" % Project.project_path
 
 if __name__ == '__main__':
@@ -24,63 +24,54 @@ if __name__ == '__main__':
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 
-    train_num = -1
-    test_num = 100
-
     start_time = datetime.datetime.now()
     logging.info('start program---------------------')
     logging.info("loading feature cache now")
-    feature_list = []
-    vgg_feature_path = "%s/%s" % (cache_path, "vgg_feature.pickle")
-    logging.info("load vgg featuer from %s" % vgg_feature_path)
-    vgg_feature = load_feature_from_pickle(vgg_feature_path)
-    if vgg_feature is not None:
-        feature_list.append(vgg_feature)
-        key = vgg_feature.keys()[0]
-        logging.info("vgg_feature[%s][0]=%s" % (key, vgg_feature[key][0]))
-    else:
-        logging.warning("fail to vgg_feature")
 
-    hog_feature_cache, lbp_feature_cache = load_cache()
+    feature_dir_list = ["%s/vgg_feature_l_31/" % cache_path]
+
+    train_data, validation_data, test_data = load_data(config.Project.train_img_folder_path, config.Project.test_img_folder_path)
     
+    train_y = train_data.image_label_list
+    validation_y = validation_data.image_label_list
 
-    logging.info("%s features in feature_list" % len(feature_list))
 
-    logging.info("load feature cache end")
-    logging.info("load train data feature now")
-    train_path_list, train_x_feature, train_y, validation_path_list, validation_x, validation_y = load_train_validation_feature(Project.train_img_folder_path, hog_feature_cache, lbp_feature_cache, feature_list, train_num)
-    logging.info("extract train data feature done")
+    logging.info("train_y shape %s" % str(train_y.shape)) 
+    logging.info("validation_y shape %s" % str(validation_y.shape)) 
+
+    feature_list = [None, None]
+    for j, dataset in enumerate([train_data, validation_data]):
+        for i, path in enumerate(dataset.image_path_list):
+            x = np.array([])
+            img_base_name = os.path.basename(path)
+            for feature_dir in feature_dir_list:
+                feature_file_name = "%s/%s.npy" % (feature_dir, img_base_name)
+                if os.path.exists(feature_file_name) and \
+                        os.path.isfile(feature_file_name):
+                    feature = np.load(feature_file_name)
+                    x = np.append(x, feature, axis=0)
+            if feature_list[j] is None:
+                feature_list[j] = x
+            else:
+                feature_list[j] = np.vstack((feature_list[j], x))
+            if i % 100 == 0:
+                logging.info("load feature of %dth %s at dataset %d" % (i, path, j))
+    train_data_feature = feature_list[0] 
+    validation_data_feature = feature_list[1]
+
+    logging.info("load feature done")
+    logging.info("train_data_feature shape %s" % str(train_data_feature.shape)) 
+    logging.info("validation_data_feature shape %s" % str(validation_data_feature.shape)) 
+
 
     logging.info("start to train the model")
 
-    logging.debug("len of train_x_feature = %d" % len(train_x_feature))
-    logging.debug("len of train_x_feature[0] = %d" % len(train_x_feature[0]))
-
-    logging.debug("len of train_y = %d" % len(train_y))
-
-    Project.predict_model.fit(x_train=train_x_feature, y_train=train_y
-                              , x_validation=validation_x, y_validation=validation_y)
+    Project.predict_model.fit(x_train=train_data_feature, y_train=train_y
+                              , x_validation=validation_data_feature, y_validation=validation_y)
 
     logging.info("train the model done")
-
-    logging.info("load test feature now")
-    test_img_names, test_x_feature = load_test_feature(Project.test_img_folder_path, hog_feature_cache, lbp_feature_cache, feature_list, test_num)
-
-    logging.info("load test feature done")
-
-    if Project.save_cache:
-        logging.info("saving feature cache now")
-        save_cache(hog_feature_cache, lbp_feature_cache)
-        logging.info("save feature cache end")
-    else:
-        logging.info("skip saving the feature cache")
-
-    del hog_feature_cache
-    del lbp_feature_cache
-    
     logging.info("start to do validation")
-
-    validation_result = Project.predict_model.predict(validation_x) 
+    validation_result = Project.predict_model.predict(validation_data_feature) 
     report = classification_report(validation_result, validation_y)
     logging.info("the validation report:\n %s" % report)
 
@@ -91,11 +82,28 @@ if __name__ == '__main__':
     logging.info("done validation")
 
     logging.info("start predict test data")
-    predict_result = Project.predict_model.predict_proba(test_x_feature)
+    predict_result = None
+    for i, path in enumerate(test_data.image_path_list):
+        x = np.array([])
+        img_base_name = os.path.basename(path)
+        for feature_dir in feature_dir_list:
+            feature_file_name = "%s/%s.npy" % (feature_dir, img_base_name)
+            if os.path.exists(feature_file_name) and \
+                    os.path.isfile(feature_file_name):
+                feature = np.load(feature_file_name)
+                x = np.append(x, feature, axis=0)
+        predict = Project.predict_model.predict_proba(x)
+
+        if predict_result is None:
+            predict_result = predict
+        else:
+            predict_result = np.vstack((predict_result, predict))
+        if i % 100 == 0:
+            logging.info("test image feature of %dth %s" % (i, path))
     logging.info("predict test data done")
 
     logging.info("start to generate the final file used to submit")
-    generate_result_file(test_img_names[:len(predict_result)], predict_result)
+    generate_result_file(test_data.image_path_list, predict_result)
     logging.info("generated the final file used to submit")
 
     end_time = datetime.datetime.now()
