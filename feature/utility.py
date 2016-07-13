@@ -104,7 +104,7 @@ def load_train_validation_feature(img_data_path, hog_cache, lbp_cache, feature_l
 
     return train_path_list[:limit], train_x, train_y, validation_path_list, validation_x, validation_y
 
-def load_test_feature(img_data_path, hog_feature_cache, lbp_feature_cache, limit=-1):
+def load_test_feature(img_data_path, hog_feature_cache, lbp_feature_cache, feature_list, limit=-1):
 
     test_img_num = 79726
     x_feature = []
@@ -159,7 +159,7 @@ def extract_feature(img_path, hog_feature_cache, lbp_feature_cache):
         lbp_feature = get_lbp_his(img)
         lbp_feature_cache[img_name] = lbp_feature
 
-    #feature += list(hog_feature)
-    #feature += list(lbp_feature)
+    feature += list(hog_feature)
+    feature += list(lbp_feature)
 
     return feature
