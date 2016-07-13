@@ -33,6 +33,7 @@ def generate_result_file(name, y_result):
         file_obj.write(','.join(num_to_str_result))
         file_obj.write('\n')
     file_obj.close()
+    logging.info("write result to %s" % file_name)
 
 if __name__ == '__main__':
     name = np.array(['test.jpg', '/home/cq/test2.jpg']);
