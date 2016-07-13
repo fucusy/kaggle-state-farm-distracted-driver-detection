@@ -61,6 +61,18 @@ def crop_center(img, img_size):
 
     return corp_img
 
+def add_padding_main(from_path, img_size, force=False):
+    for path in from_path:
+        img_size_str_list = [str(x) for x in img_size]
+        to_path = "%s_padding_%s" % (path, "_".join(img_size_str_list))
+        args = {"img_size": img_size}
+        logging.info("add padding image in %s to %s" % (path, to_path))
+        if 'c0' in os.listdir(path):
+            loop_process_train_image(path, to_path, add_padding, args, force)
+        else:
+            loop_process_test_image(path, to_path, add_padding, args, force)
+
+
 if __name__ == "__main__":
     level = logging.DEBUG
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
